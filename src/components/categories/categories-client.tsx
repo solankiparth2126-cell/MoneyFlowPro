@@ -145,11 +145,10 @@ export function CategoriesClient() {
     };
 
     const itemVariants = {
-        hidden: { opacity: 0, y: 20, scale: 0.95 },
+        hidden: { opacity: 0, y: 20 },
         visible: { 
             opacity: 1, 
             y: 0, 
-            scale: 1,
             transition: { type: "spring", stiffness: 100, damping: 15 } as const
         }
     };
@@ -159,96 +158,97 @@ export function CategoriesClient() {
             initial="hidden" 
             animate="visible" 
             variants={containerVariants}
-            className="container mx-auto py-2 px-2 max-w-7xl space-y-4"
+            className="space-y-10"
         >
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-2">
-                <motion.div variants={itemVariants}>
-                    <h1 className="text-xl font-extrabold tracking-tight flex items-center gap-3">
-                        <div className="p-2.5 bg-amber-100 dark:bg-amber-900/40 rounded-[1.2rem] shadow-sm transform -rotate-2 hover:rotate-0 transition-all duration-500">
-                            <Tag className="h-6 w-6 text-amber-600" />
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 px-1">
+                <motion.div variants={itemVariants} className="flex items-center gap-6">
+                    <div className="h-16 w-16 bg-indigo-600 rounded-[2rem] flex items-center justify-center shadow-2xl shadow-indigo-200 shrink-0">
+                        <Layers className="h-8 w-8 text-white" />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-3">
+                            <h1 className="text-4xl font-black text-gray-900 tracking-tight uppercase">Category Master</h1>
+                            <Badge variant="secondary" className="rounded-xl bg-indigo-50 text-indigo-600 border-indigo-100 px-3 py-1 h-7 text-[11px] font-black uppercase tracking-widest">
+                                {categories.length} Assets
+                            </Badge>
                         </div>
-                        <div className="flex flex-col">
-                            <div className="flex items-center gap-2.5">
-                                <span className="text-2xl font-black text-gray-900 dark:text-gray-50 tracking-tight">Category Master</span>
-                                <Badge variant="secondary" className="rounded-full bg-amber-50 text-amber-600 border-amber-100 px-3 py-0.5 h-6 text-[10px] font-black uppercase tracking-wider">
-                                    {categories.length} Total
-                                </Badge>
-                            </div>
-                            <p className="text-[11px] text-muted-foreground font-semibold leading-none mt-1.5 opacity-70">
-                                Manage your expense and income categories for better financial clarity.
-                            </p>
-                        </div>
-                    </h1>
+                        <p className="text-gray-500 text-sm font-bold opacity-60 uppercase tracking-widest">
+                            Configure your financial classification hierarchy.
+                        </p>
+                    </div>
                 </motion.div>
 
-                <motion.div variants={itemVariants} className="flex items-center gap-3">
+                <motion.div variants={itemVariants} className="flex items-center gap-4">
                     <Button 
-                        variant="outline" 
+                        variant="ghost" 
                         size="sm" 
                         onClick={handleSeed} 
                         disabled={isSeeding}
-                        className="rounded-xl px-4 h-10 border-amber-200 hover:bg-amber-50 text-amber-700 font-bold shadow-sm transition-all duration-300"
+                        className="rounded-xl px-6 h-14 text-indigo-600 font-black uppercase tracking-widest text-[11px] hover:bg-indigo-50 transition-all border border-indigo-100"
                     >
-                        {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4 text-amber-500" />}
+                        {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
                         Smart Setup
                     </Button>
-                    <Button onClick={openAdd} className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl px-5 h-10 shadow-lg shadow-indigo-100 font-bold transition-all transform active:scale-95">
-                        <Plus className="mr-2 h-5 w-5" /> Add Category
+                    <Button 
+                        onClick={openAdd} 
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl px-8 h-14 shadow-2xl shadow-indigo-200 font-black uppercase tracking-widest text-xs transition-all transform active:scale-95"
+                    >
+                        <Plus className="mr-2 h-5 w-5" /> New Category
                     </Button>
                 </motion.div>
             </div>
 
-            {/* Premium Search and Filters Section */}
+            {/* Modern Search and Filters Section */}
             <motion.div 
                 variants={itemVariants}
-                className="bg-white/40 backdrop-blur-md border border-gray-100 rounded-[2rem] p-4 flex flex-col md:flex-row gap-4 items-center shadow-sm hover:shadow-md transition-all duration-300"
+                className="flex flex-col md:flex-row gap-4 items-center px-1"
             >
                 <div className="relative flex-1 w-full group">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-indigo-500 transition-colors" />
+                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-indigo-600 transition-all font-black" />
                     <Input 
-                        placeholder="Search categories..." 
+                        placeholder="Search categories by name..." 
                         value={searchQuery} 
                         onChange={(e) => setSearchQuery(e.target.value)} 
-                        className="pl-12 h-12 rounded-2xl border-0 bg-white/80 shadow-inner focus:bg-white focus:ring-2 focus:ring-indigo-100 transition-all font-medium text-sm"
+                        className="pl-14 h-16 rounded-[1.5rem] border-gray-100 bg-white shadow-sm focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-gray-900 text-base placeholder:text-gray-400 placeholder:font-medium placeholder:text-sm"
                     />
                 </div>
                 <div className="flex items-center gap-3 w-full md:w-auto">
-                    <div className="flex items-center h-12 px-4 bg-white/80 rounded-2xl border border-gray-50 shadow-inner flex-1 md:flex-none">
-                        <Filter className="mr-2 h-4 w-4 text-gray-400" />
+                    <div className="flex items-center h-16 px-6 bg-white rounded-[1.5rem] border border-gray-100 shadow-sm flex-1 md:flex-none">
+                        <Filter className="mr-3 h-4 w-4 text-indigo-600" />
                         <Select value={filterType} onValueChange={setFilterType}>
-                            <SelectTrigger className="border-0 bg-transparent shadow-none focus:ring-0 font-bold text-gray-600 h-8 w-[140px]">
-                                <SelectValue placeholder="All Types" />
+                            <SelectTrigger className="border-0 bg-transparent shadow-none focus:ring-0 font-black text-[10px] uppercase tracking-widest text-gray-600 h-10 w-[160px]">
+                                <SelectValue placeholder="All Activities" />
                             </SelectTrigger>
-                            <SelectContent className="rounded-2xl border-0 shadow-2xl">
-                                <SelectItem value="all" className="rounded-xl font-medium">All Types</SelectItem>
-                                <SelectItem value="expense" className="rounded-xl font-medium">Expense</SelectItem>
-                                <SelectItem value="income" className="rounded-xl font-medium">Income</SelectItem>
+                            <SelectContent className="rounded-2xl border-gray-100 shadow-2xl p-2 w-[200px]">
+                                <SelectItem value="all" className="rounded-xl font-black text-[10px] uppercase tracking-widest py-3">All Activities</SelectItem>
+                                <SelectItem value="expense" className="rounded-xl font-black text-[10px] uppercase tracking-widest py-3 text-rose-500">Expense Out (-)</SelectItem>
+                                <SelectItem value="income" className="rounded-xl font-black text-[10px] uppercase tracking-widest py-3 text-emerald-500">Income Flow (+)</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
                 </div>
             </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-1">
                 <AnimatePresence mode="popLayout">
                     {isLoading ? (
-                        <div className="col-span-full py-20 flex flex-col items-center justify-center gap-4 text-muted-foreground bg-white/50 backdrop-blur-sm rounded-[2rem] border-2 border-dashed">
-                            <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
-                            <p className="font-medium animate-pulse">Syncing categories...</p>
+                        <div className="col-span-full py-32 flex flex-col items-center justify-center gap-6 text-gray-400 bg-gray-50/50 rounded-[3rem] border border-dashed border-gray-200">
+                            <Loader2 className="h-10 w-10 animate-spin text-indigo-600 opacity-40" />
+                            <p className="font-black text-[10px] uppercase tracking-[0.3em] opacity-40">Syncing Master Data...</p>
                         </div>
                     ) : parentCategories.length === 0 ? (
                         <motion.div 
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
-                            className="col-span-full py-24 text-center bg-white/50 backdrop-blur-sm rounded-[2.5rem] border-2 border-dashed border-indigo-100"
+                            className="col-span-full py-32 text-center bg-gray-50/50 rounded-[3rem] border border-dashed border-gray-200"
                         >
-                            <div className="bg-indigo-50 h-20 w-20 rounded-3xl flex items-center justify-center mx-auto mb-6 text-indigo-500">
-                                <Tag className="h-10 w-10 opacity-40" />
+                            <div className="bg-white h-20 w-20 rounded-[2rem] shadow-xl flex items-center justify-center mx-auto mb-8 text-gray-300">
+                                <Tag className="h-10 w-10" />
                             </div>
-                            <h3 className="text-2xl font-bold text-gray-900 mb-2">Build your taxonomy</h3>
-                            <p className="text-muted-foreground max-w-sm mx-auto mb-8">Create your first category to start organizing your financial engine.</p>
-                            <Button onClick={openAdd} className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl px-8 h-12 shadow-xl shadow-indigo-200 font-bold">
-                                <Plus className="mr-2 h-5 w-5" /> Get Started
+                            <h3 className="text-2xl font-black text-gray-900 mb-2 uppercase tracking-tight">System Empty</h3>
+                            <p className="text-gray-500 text-sm font-bold opacity-60 mb-10 max-w-xs mx-auto">Start by constructing your first financial classification.</p>
+                            <Button onClick={openAdd} className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl px-10 h-14 shadow-2xl shadow-indigo-100 font-black uppercase tracking-widest text-xs">
+                                <Plus className="mr-2 h-5 w-5" /> Initialize
                             </Button>
                         </motion.div>
                     ) : (
@@ -261,31 +261,31 @@ export function CategoriesClient() {
                                     key={category.id} 
                                     variants={itemVariants}
                                     layout
-                                    className="group relative"
+                                    className="group"
                                 >
-                                    <Card className="border-0 shadow-lg rounded-[2.5rem] overflow-hidden bg-white/70 backdrop-blur-md ring-1 ring-gray-100 dark:bg-gray-900/70 dark:ring-gray-800 hover:shadow-2xl hover:ring-indigo-200 transition-all duration-500 h-full flex flex-col">
-                                        <div className="p-6 pb-2">
-                                            <div className="flex justify-between items-start mb-4">
+                                    <Card className="border border-gray-100 shadow-sm rounded-[2.5rem] overflow-hidden bg-white hover:shadow-2xl hover:shadow-indigo-100/50 transition-all duration-500 h-full flex flex-col group/card">
+                                        <div className="p-8 pb-4">
+                                            <div className="flex justify-between items-start mb-8">
                                                 <div 
-                                                    className="h-14 w-14 rounded-3xl flex items-center justify-center shadow-lg transform group-hover:rotate-6 transition-transform duration-500"
-                                                    style={{ backgroundColor: `${category.color}15`, border: `1px solid ${category.color}40` }}
+                                                    className="h-14 w-14 rounded-2xl flex items-center justify-center shadow-sm transition-transform duration-500 group-hover/card:rotate-6"
+                                                    style={{ backgroundColor: `${category.color}10`, border: `1px solid ${category.color}20` }}
                                                 >
                                                     <Tag className="h-7 w-7" style={{ color: category.color }} />
                                                 </div>
-                                                <div className="flex gap-1 opacity-0 md:group-hover:opacity-100 transition-all duration-300">
+                                                <div className="flex gap-1">
                                                     <DropdownMenu>
                                                         <DropdownMenuTrigger asChild>
-                                                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-2xl bg-white/80 shadow-sm border"><MoreVertical className="h-4 w-4" /></Button>
+                                                            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-gray-50 transition-all"><MoreVertical className="h-5 w-5 text-gray-300 group-hover/card:text-gray-400" /></Button>
                                                         </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end" className="rounded-2xl p-2 border-0 shadow-2xl bg-white/95 backdrop-blur-xl">
+                                                        <DropdownMenuContent align="end" className="rounded-2xl border-0 shadow-2xl p-1.5 w-40">
                                                             {canEdit("ADMIN", "MASTERS") && (
-                                                                <DropdownMenuItem onClick={() => openEdit(category)} className="rounded-xl focus:bg-indigo-50">
-                                                                    <Pencil className="mr-2 h-4 w-4 text-indigo-500" /> Rename
+                                                                <DropdownMenuItem onClick={() => openEdit(category)} className="rounded-xl h-11 text-xs font-black uppercase tracking-widest gap-3 px-4">
+                                                                    <Pencil className="h-4 w-4 text-indigo-600" /> Modify
                                                                 </DropdownMenuItem>
                                                             )}
                                                             {canDelete("ADMIN", "MASTERS") && (
-                                                                <DropdownMenuItem onClick={() => remove({ id: category.id })} className="rounded-xl focus:bg-rose-50 text-rose-600">
-                                                                    <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                                                <DropdownMenuItem onClick={() => remove({ id: category.id })} className="rounded-xl h-11 text-xs font-black uppercase tracking-widest text-rose-500 focus:text-rose-600 gap-3 px-4">
+                                                                    <Trash2 className="h-4 w-4 text-rose-600" /> Purge
                                                                 </DropdownMenuItem>
                                                             )}
                                                         </DropdownMenuContent>
@@ -293,25 +293,30 @@ export function CategoriesClient() {
                                                 </div>
                                             </div>
                                             
-                                            <div className="space-y-1">
-                                                <div className="flex items-center gap-2">
-                                                    <h3 className="font-extrabold text-xl text-gray-900 dark:text-gray-100 tracking-tight">{category.name}</h3>
-                                                    <Badge className={`text-[10px] rounded-full px-2 uppercase font-black tracking-widest ${category.type === 'expense' ? 'bg-rose-50 text-rose-500' : 'bg-emerald-50 text-emerald-500'}`}>
-                                                        {category.type}
-                                                    </Badge>
+                                            <div className="space-y-4">
+                                                <div className="space-y-1">
+                                                    <h3 className="font-black text-xl text-gray-900 tracking-tight uppercase group-hover/card:text-indigo-600 transition-colors duration-300">{category.name}</h3>
+                                                    <div className="flex items-center gap-2">
+                                                        <Badge variant="outline" className={`text-[9px] px-2 py-0.5 rounded-lg font-black uppercase tracking-widest ${category.type === 'expense' ? 'text-rose-500 border-rose-100 bg-rose-50/50' : 'text-emerald-500 border-emerald-100 bg-emerald-50/50'}`}>
+                                                            {category.type}
+                                                        </Badge>
+                                                        {category.parentId && category.parentId !== 'none' && (
+                                                            <div className="h-1 w-1 rounded-full bg-gray-200" />
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <CardContent className="p-6 pt-2 flex-grow space-y-4">
+                                        <CardContent className="p-8 pt-4 flex-grow space-y-8">
                                             {children.length > 0 && (
-                                                <div className="space-y-2">
-                                                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-1.5 px-1">
-                                                        <Layers className="h-3 w-3" /> Sub-categories
+                                                <div className="space-y-3">
+                                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] px-1">
+                                                        Sub-categories
                                                     </p>
-                                                    <div className="flex flex-wrap gap-1.5">
+                                                    <div className="flex flex-wrap gap-2">
                                                         {children.map((child: any) => (
-                                                            <div key={child.id} className="group/sub flex items-center gap-1 px-3 py-1 bg-gray-50/80 rounded-full border border-gray-100 hover:border-indigo-200 hover:bg-white transition-all duration-300 cursor-default">
+                                                            <div key={child.id} className="flex items-center gap-1.5 px-3.5 py-1.5 bg-gray-50 rounded-xl border border-gray-100 transition-all hover:bg-white hover:shadow-sm">
                                                                 <span className="text-[11px] font-bold text-gray-600">{child.name}</span>
                                                             </div>
                                                         ))}
@@ -320,13 +325,13 @@ export function CategoriesClient() {
                                             )}
 
                                             {keywords.length > 0 && (
-                                                <div className="space-y-2">
-                                                    <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest flex items-center gap-1.5 px-1">
-                                                        <Sparkles className="h-3 w-3" /> Auto-Rules
+                                                <div className="space-y-3">
+                                                    <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] px-1">
+                                                        Heuristic Rules
                                                     </p>
-                                                    <div className="flex flex-wrap gap-1.5">
+                                                    <div className="flex flex-wrap gap-2">
                                                         {keywords.map((word: string, i: number) => (
-                                                            <span key={i} className="text-[10px] font-bold px-2 py-0.5 bg-indigo-50/50 text-indigo-600/80 rounded-md border border-indigo-100/50 uppercase tracking-tighter">
+                                                            <span key={i} className="text-[10px] font-black px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg border border-indigo-100 uppercase tracking-widest shadow-sm shadow-indigo-50/50">
                                                                 {word}
                                                             </span>
                                                         ))}
@@ -335,8 +340,8 @@ export function CategoriesClient() {
                                             )}
                                         </CardContent>
 
-                                        <div className="mt-auto p-4 border-t border-gray-50/50 bg-gray-50/10 text-[9px] font-bold text-muted-foreground text-center uppercase tracking-[0.2em] opacity-40">
-                                            Integrated Category
+                                        <div className="mt-auto p-6 border-t border-gray-50 bg-gray-50/30 text-[9px] font-black text-gray-400 text-center uppercase tracking-[0.3em] opacity-40">
+                                            Financial Data Engine
                                         </div>
                                     </Card>
                                 </motion.div>
@@ -347,59 +352,66 @@ export function CategoriesClient() {
             </div>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="sm:max-w-[480px] rounded-[2.5rem] p-0 overflow-hidden border-0 shadow-2xl glass-iris">
+                <DialogContent className="sm:max-w-[520px] rounded-[3rem] p-0 overflow-hidden border-0 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.15)] bg-white">
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)}>
-                            <div className="p-8 pb-4">
+                            <div className="p-10 pb-6 bg-indigo-600/5">
                                 <DialogHeader>
-                                    <DialogTitle className="text-2xl font-black tracking-tight text-gray-900 bg-clip-text text-transparent bg-gradient-to-br from-gray-900 to-gray-500">
-                                        {editingId ? "Edit Category" : "New Category"}
-                                    </DialogTitle>
-                                    <DialogDescription className="text-muted-foreground text-sm font-medium">
-                                        Configure a unified category for your financial transactions.
-                                    </DialogDescription>
+                                    <div className="flex items-center gap-6 mb-2">
+                                        <div className="h-16 w-16 bg-white rounded-2xl flex items-center justify-center shadow-xl shadow-indigo-100/50 border border-indigo-50">
+                                            {editingId ? <Pencil className="h-8 w-8 text-indigo-600" /> : <Tag className="h-8 w-8 text-indigo-600" />}
+                                        </div>
+                                        <div>
+                                            <DialogTitle className="text-3xl font-black tracking-tight text-gray-900 uppercase">
+                                                {editingId ? "Modify" : "Create"}
+                                            </DialogTitle>
+                                            <DialogDescription className="text-indigo-600/50 text-[10px] uppercase font-black tracking-[0.2em]">
+                                                {editingId ? "Update existing category" : "Establish new classification"}
+                                            </DialogDescription>
+                                        </div>
+                                    </div>
                                 </DialogHeader>
                             </div>
 
-                            <div className="px-8 py-4 space-y-5">
+                            <div className="px-10 py-8 space-y-8">
                                 <FormField
                                     control={form.control}
                                     name="name"
                                     render={({ field }) => (
-                                        <FormItem className="space-y-1.5">
-                                            <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">Category Name</FormLabel>
+                                        <FormItem className="space-y-2">
+                                            <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Entity Name</FormLabel>
                                             <FormControl>
                                                 <Input 
-                                                    placeholder="e.g., Groceries, Salary, Rent" 
-                                                    className="h-12 rounded-2xl border-gray-100 bg-gray-50/50 focus:bg-white focus:ring-indigo-500 transition-all font-medium"
+                                                    placeholder="e.g. Household Maintenance" 
+                                                    className="h-14 rounded-2xl border-gray-100 bg-gray-50/50 focus:bg-white focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-gray-900 text-base"
                                                     {...field}
                                                 />
                                             </FormControl>
-                                            <FormMessage className="text-[10px]" />
+                                            <FormMessage className="text-[10px] font-bold text-rose-500" />
                                         </FormItem>
                                     )}
                                 />
 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-2 gap-6">
                                     <FormField
                                         control={form.control}
                                         name="type"
                                         render={({ field }) => (
-                                            <FormItem className="space-y-1.5">
-                                                <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">Type</FormLabel>
+                                            <FormItem className="space-y-2">
+                                                <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Activity Type</FormLabel>
                                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                     <FormControl>
-                                                        <SelectTrigger className="h-12 rounded-2xl border-gray-100 bg-gray-50/50 font-medium">
+                                                        <SelectTrigger className="h-14 rounded-2xl border-gray-100 bg-gray-50/50 font-bold text-gray-700 focus:ring-indigo-500">
                                                             <SelectValue placeholder="Select" />
                                                         </SelectTrigger>
                                                     </FormControl>
-                                                    <SelectContent className="rounded-2xl border-0 shadow-2xl">
-                                                        <SelectItem value="expense">Expense</SelectItem>
-                                                        <SelectItem value="income">Income</SelectItem>
-                                                        <SelectItem value="both">Both</SelectItem>
+                                                    <SelectContent className="rounded-2xl border-gray-100 shadow-2xl p-1.5 overflow-hidden">
+                                                        <SelectItem value="expense" className="rounded-xl font-black text-[10px] uppercase tracking-widest py-3 text-rose-500">Expense Out (-)</SelectItem>
+                                                        <SelectItem value="income" className="rounded-xl font-black text-[10px] uppercase tracking-widest py-3 text-emerald-500">Income Flow (+)</SelectItem>
+                                                        <SelectItem value="both" className="rounded-xl font-black text-[10px] uppercase tracking-widest py-3">General Flow</SelectItem>
                                                     </SelectContent>
                                                 </Select>
-                                                <FormMessage className="text-[10px]" />
+                                                <FormMessage className="text-[10px] font-bold text-rose-500" />
                                             </FormItem>
                                         )}
                                     />
@@ -407,41 +419,41 @@ export function CategoriesClient() {
                                         control={form.control}
                                         name="parentId"
                                         render={({ field }) => (
-                                            <FormItem className="space-y-1.5">
-                                                <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">Parent Category</FormLabel>
+                                            <FormItem className="space-y-2">
+                                                <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Hierarchy Link</FormLabel>
                                                 <Select onValueChange={field.onChange} value={field.value}>
                                                     <FormControl>
-                                                        <SelectTrigger className="h-12 rounded-2xl border-gray-100 bg-gray-50/50 font-medium">
+                                                        <SelectTrigger className="h-14 rounded-2xl border-gray-100 bg-gray-50/50 font-bold text-gray-700 focus:ring-indigo-500">
                                                             <SelectValue placeholder="Select" />
                                                         </SelectTrigger>
                                                     </FormControl>
-                                                    <SelectContent className="rounded-2xl border-0 shadow-2xl">
-                                                        <SelectItem value="none">None (Root)</SelectItem>
+                                                    <SelectContent className="rounded-2xl border-gray-100 shadow-2xl p-1.5 max-h-[300px]">
+                                                        <SelectItem value="none" className="rounded-xl font-black text-[10px] uppercase tracking-widest py-3 italic opacity-40">None (Root Node)</SelectItem>
                                                         {parentCategories.filter(p => !editingId || p.id !== editingId).map(p => (
-                                                            <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                                                            <SelectItem key={p.id} value={p.id} className="rounded-xl font-black text-[10px] uppercase tracking-widest py-3">{p.name}</SelectItem>
                                                         ))}
                                                     </SelectContent>
                                                 </Select>
-                                                <FormMessage className="text-[10px]" />
+                                                <FormMessage className="text-[10px] font-bold text-rose-500" />
                                             </FormItem>
                                         )}
                                     />
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-2 gap-6">
                                     <FormField
                                         control={form.control}
                                         name="color"
                                         render={({ field }) => (
-                                            <FormItem className="space-y-1.5">
-                                                <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">Color</FormLabel>
-                                                <div className="flex gap-2">
+                                            <FormItem className="space-y-2">
+                                                <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Visual Token</FormLabel>
+                                                <div className="flex gap-3">
                                                     <FormControl>
-                                                        <Input type="color" {...field} className="h-12 w-12 p-1 rounded-xl cursor-pointer" />
+                                                        <Input type="color" {...field} className="h-14 w-16 p-1.5 rounded-2xl cursor-pointer border-0 ring-1 ring-gray-100 bg-gray-50 transition-all hover:scale-105" />
                                                     </FormControl>
-                                                    <Input value={field.value} onChange={field.onChange} className="h-12 flex-1 rounded-2xl bg-gray-50/50 uppercase font-mono text-xs font-bold" />
+                                                    <Input value={field.value} onChange={field.onChange} className="h-14 flex-1 rounded-2xl bg-gray-50/50 border-gray-100 uppercase font-mono text-xs font-bold tracking-widest focus:ring-indigo-500" />
                                                 </div>
-                                                <FormMessage className="text-[10px]" />
+                                                <FormMessage className="text-[10px] font-bold text-rose-500" />
                                             </FormItem>
                                         )}
                                     />
@@ -449,12 +461,12 @@ export function CategoriesClient() {
                                         control={form.control}
                                         name="icon"
                                         render={({ field }) => (
-                                            <FormItem className="space-y-1.5">
-                                                <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">Icon (Name)</FormLabel>
+                                            <FormItem className="space-y-2">
+                                                <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Iconic Asset</FormLabel>
                                                 <FormControl>
-                                                    <Input placeholder="Tag, Shopping, etc." className="h-12 rounded-2xl bg-gray-50/50 font-medium" {...field} />
+                                                    <Input placeholder="Tag, Package, etc." className="h-14 rounded-2xl border-gray-100 bg-gray-50/50 font-bold text-gray-900 focus:ring-indigo-500" {...field} />
                                                 </FormControl>
-                                                <FormMessage className="text-[10px]" />
+                                                <FormMessage className="text-[10px] font-bold text-rose-500" />
                                             </FormItem>
                                         )}
                                     />
@@ -464,29 +476,32 @@ export function CategoriesClient() {
                                     control={form.control}
                                     name="keywords"
                                     render={({ field }) => (
-                                        <FormItem className="space-y-1.5">
-                                            <FormLabel className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1 flex items-center justify-between">
-                                                Auto-Categorization Keywords
-                                                <Badge variant="outline" className="text-[8px] font-black tracking-widest px-1.5">SMART</Badge>
-                                            </FormLabel>
+                                        <FormItem className="space-y-2">
+                                            <FormLabel className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400 ml-1">Heuristic Pattern Matching</FormLabel>
                                             <FormControl>
                                                 <Textarea 
-                                                    placeholder="e.g., Zomato, Amazon, Uber, Petrol (comma separated)" 
-                                                    className="rounded-[1.5rem] border-gray-100 bg-gray-50/50 focus:bg-white min-h-[100px] resize-none text-sm font-medium"
+                                                    placeholder="Enter keywords (e.g. Uber, Netflix, Rent) separated by commas for intelligent auto-categorization." 
+                                                    className="rounded-2xl border-gray-100 bg-gray-50/50 focus:bg-white min-h-[100px] resize-none text-xs font-bold p-5 tracking-tight focus:ring-indigo-500 transition-all"
                                                     {...field}
                                                 />
                                             </FormControl>
-                                            <p className="text-[10px] text-muted-foreground ml-1">Keywords help auto-group imports.</p>
-                                            <FormMessage className="text-[10px]" />
+                                            <FormMessage className="text-[10px] font-bold text-rose-500" />
                                         </FormItem>
                                     )}
                                 />
                             </div>
 
-                            <div className="p-8 pt-4">
-                                <Button type="submit" disabled={isSubmitting} className="w-full h-14 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl shadow-xl shadow-indigo-200 transition-all font-bold text-lg">
-                                    {isSubmitting ? <Loader2 className="animate-spin mr-2 h-5 w-5" /> : (editingId ? <Save className="mr-2 h-5 w-5" /> : <Plus className="mr-2 h-5 w-5" />)}
-                                    {editingId ? "Update Category" : "Create Category"}
+                            <div className="p-10 pt-4">
+                                <Button 
+                                    type="submit" 
+                                    disabled={isSubmitting} 
+                                    className="w-full h-16 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl shadow-2xl shadow-indigo-200 transition-all font-black text-xs uppercase tracking-[0.2em]"
+                                >
+                                    {isSubmitting ? (
+                                        <Loader2 className="animate-spin h-6 w-6" />
+                                    ) : (
+                                        editingId ? "Update Ecosystem" : "Commit Entity"
+                                    )}
                                 </Button>
                             </div>
                         </form>
@@ -496,3 +511,4 @@ export function CategoriesClient() {
         </motion.div>
     );
 }
+

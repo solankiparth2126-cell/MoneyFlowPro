@@ -33,6 +33,7 @@ import { useRecurring, RecurringTransaction } from "@/hooks/use-recurring";
 import { useLedgers } from "@/hooks/use-ledgers";
 import { useToast } from "@/hooks/use-toast";
 import { usePermissions } from "@/hooks/use-permissions";
+import { cn } from "@/lib/utils";
 
 export function RecurringClient() {
     const { toast } = useToast();
@@ -139,138 +140,229 @@ export function RecurringClient() {
     };
 
     return (
-        <motion.div 
-            initial="hidden"
-            animate="visible"
-            variants={containerVariants}
-            className="container mx-auto py-2 px-2 max-w-7xl space-y-4"
-        >
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <motion.div>
-                    <h1 className="text-xl font-extrabold tracking-tight text-gray-900 dark:text-gray-100 flex items-center gap-2 leading-none">
-                        <div className="p-1.5 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl text-indigo-600">
-                            <Clock className="h-5 w-5" />
-                        </div>
-                        Automated Finances
-                    </h1>
-                    <p className="text-muted-foreground mt-1 text-[11px] font-medium leading-none">
-                        Manage your recurring bills and regular income.
-                    </p>
-                </motion.div>
+    <motion.div 
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+      className="container mx-auto py-8 px-6 max-w-7xl space-y-8"
+    >
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <h1 className="text-3xl font-black tracking-tight text-gray-900 flex items-center gap-3 uppercase">
+            <div className="p-3 bg-indigo-50 rounded-2xl border border-indigo-100/50 text-indigo-600">
+              <Clock className="h-7 w-7" />
+            </div>
+            Auto Finances
+          </h1>
+          <p className="text-gray-500 mt-2 text-sm font-semibold ml-1">
+            Manage your recurring bills and regular income.
+          </p>
+        </div>
 
-                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                    <DialogTrigger asChild>
-                    {canCreate("CORE", "RECURRING") && (
-                        <Button size="sm" onClick={() => handleOpenDialog()} className="bg-indigo-600 hover:bg-indigo-700 h-9 px-4 rounded-xl shadow-lg">
-                            <Plus className="mr-2 h-4 w-4" /> Add Schedule
-                        </Button>
-                    )}
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>{editingSchedule ? "Edit Recurring Schedule" : "Add Recurring Schedule"}</DialogTitle>
-                            <DialogDescription>
-                                Set up an automated income or expense schedule.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <form onSubmit={handleSubmit} className="space-y-4 pt-4">
-                            <Input
-                                value={formData.description}
-                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                placeholder="Description"
-                                required
-                            />
-                            <Input
-                                type="number"
-                                value={formData.amount}
-                                onChange={(e) => setFormData({ ...formData, amount: parseFloat(e.target.value) })}
-                                placeholder="Amount"
-                                required
-                            />
-                            <Select value={formData.interval} onValueChange={(v: any) => setFormData({ ...formData, interval: v })}>
-                                <SelectTrigger className="h-11 rounded-xl"><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="monthly">Monthly</SelectItem>
-                                    <SelectItem value="yearly">Yearly</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <Select value={formData.ledgerId} onValueChange={(v: any) => setFormData({ ...formData, ledgerId: v })}>
-                                <SelectTrigger className="h-11 rounded-xl"><SelectValue placeholder="Select Account" /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="none">Default Account</SelectItem>
-                                    {ledgers.map((l: any) => (
-                                        <SelectItem key={l._id} value={l._id}>{l.name}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            <Button type="submit" disabled={isSubmitting} className="w-full h-12 bg-indigo-600 rounded-xl">
-                                {isSubmitting ? <Loader2 className="animate-spin h-5 w-5 mx-auto" /> : (editingSchedule ? "Save Changes" : "Schedule Transaction")}
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            {canCreate("CORE", "RECURRING") && (
+              <Button onClick={() => handleOpenDialog()} className="bg-indigo-600 hover:bg-indigo-700 h-12 px-6 rounded-xl shadow-lg shadow-indigo-100 font-black uppercase tracking-widest text-[10px] gap-2 transition-all">
+                <Plus className="mr-2 h-4 w-4" /> New Schedule
+              </Button>
+            )}
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[480px] rounded-[2rem] p-0 overflow-hidden border-0 shadow-2xl bg-white">
+            <div className="p-8 pb-4">
+              <DialogHeader>
+                <div className="flex items-center gap-4 mb-2">
+                  <div className="h-12 w-12 bg-indigo-50 rounded-xl flex items-center justify-center border border-indigo-100">
+                    <Clock className="h-6 w-6 text-indigo-600" />
+                  </div>
+                  <div>
+                    <DialogTitle className="text-2xl font-black tracking-tight text-gray-900 uppercase">
+                      {editingSchedule ? "Edit Schedule" : "New Schedule"}
+                    </DialogTitle>
+                    <DialogDescription className="text-gray-500 text-xs font-semibold">
+                      Set up automated transaction flow.
+                    </DialogDescription>
+                  </div>
+                </div>
+              </DialogHeader>
+            </div>
+
+            <form onSubmit={handleSubmit} className="px-8 pb-8 space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2 space-y-1.5">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-gray-400 ml-1">Description</label>
+                  <Input
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    className="h-12 rounded-xl border-gray-100 bg-gray-50/50 focus:bg-white focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-gray-900"
+                    placeholder="e.g. Monthly Rent"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-gray-400 ml-1">Amount (₹)</label>
+                  <Input
+                    type="number"
+                    value={formData.amount}
+                    onChange={(e) => setFormData({ ...formData, amount: parseFloat(e.target.value) })}
+                    className="h-12 rounded-xl border-gray-100 bg-gray-50/50 focus:bg-white focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-gray-900"
+                    placeholder="0.00"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-gray-400 ml-1">Type</label>
+                    <Select value={formData.type} onValueChange={(v: any) => setFormData({ ...formData, type: v })}>
+                        <SelectTrigger className="h-12 rounded-xl border-gray-100 bg-gray-50/50 font-bold text-gray-600 uppercase text-[10px] tracking-widest">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl border-gray-100 shadow-2xl p-1">
+                            <SelectItem value="expense" className="rounded-lg font-bold text-xs">Expense</SelectItem>
+                            <SelectItem value="income" className="rounded-lg font-bold text-xs">Income</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-gray-400 ml-1">Interval</label>
+                  <Select value={formData.interval} onValueChange={(v: any) => setFormData({ ...formData, interval: v })}>
+                    <SelectTrigger className="h-12 rounded-xl border-gray-100 bg-gray-50/50 font-bold text-gray-600 uppercase text-[10px] tracking-widest">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl border-gray-100 shadow-2xl p-1">
+                      <SelectItem value="monthly" className="rounded-lg font-bold text-xs">Monthly</SelectItem>
+                      <SelectItem value="yearly" className="rounded-lg font-bold text-xs">Yearly</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-gray-400 ml-1">Account</label>
+                  <Select value={formData.ledgerId} onValueChange={(v: any) => setFormData({ ...formData, ledgerId: v })}>
+                    <SelectTrigger className="h-12 rounded-xl border-gray-100 bg-gray-50/50 font-bold text-gray-600 text-xs">
+                      <SelectValue placeholder="Select Account" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl border-gray-100 shadow-2xl p-1 max-h-[200px]">
+                      <SelectItem value="none" className="rounded-lg font-bold text-xs">Default Account</SelectItem>
+                      {ledgers.map((l: any) => (
+                        <SelectItem key={l._id} value={l._id} className="rounded-lg font-bold text-xs">{l.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <Button type="submit" disabled={isSubmitting} className="w-full h-14 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-100 transition-all font-black text-lg uppercase tracking-widest mt-2">
+                {isSubmitting ? <Loader2 className="h-6 w-6 animate-spin text-white" /> : (editingSchedule ? "Update Schedule" : "Schedule Now")}
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {isLoading ? (
+          <div className="col-span-full h-64 flex flex-col items-center justify-center bg-white rounded-[2rem] border border-gray-100 gap-4">
+            <Loader2 className="h-10 w-10 animate-spin text-indigo-600" />
+            <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Syncing schedules...</p>
+          </div>
+        ) : recurring.length === 0 ? (
+          <div className="col-span-full h-80 border-2 border-dashed border-gray-100 rounded-[2.5rem] flex flex-col items-center justify-center bg-white/50">
+            <div className="h-16 w-16 bg-white rounded-2xl flex items-center justify-center shadow-sm border border-gray-50 mb-6">
+              <Activity className="h-8 w-8 text-gray-300" />
+            </div>
+            <h3 className="text-xl font-black text-gray-900 uppercase">No active schedules</h3>
+            <p className="text-gray-400 text-sm font-semibold max-w-[240px] text-center mt-2">Automate your regular expenses and incoming funds.</p>
+          </div>
+        ) : (
+          <AnimatePresence>
+            {recurring.map((item: any, idx: number) => (
+              <motion.div key={item._id} layout initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+                <Card className={cn(
+                  "group border-gray-100 shadow-sm rounded-[2.5rem] overflow-hidden transition-all duration-500 hover:shadow-xl bg-white relative",
+                  !item.isActive && "opacity-60 grayscale-[0.5]"
+                )}>
+                  <div className="p-8">
+                    <header className="flex justify-between items-start mb-6">
+                      <div className={cn(
+                        "h-14 w-14 rounded-2xl flex items-center justify-center border",
+                        item.type === 'income' ? "bg-emerald-50 border-emerald-100 text-emerald-600" : "bg-rose-50 border-rose-100 text-rose-600"
+                      )}>
+                        {item.type === 'income' ? <ArrowUpCircle className="h-7 w-7" /> : <ArrowDownCircle className="h-7 w-7" />}
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <Badge className={cn(
+                          "rounded-lg font-black uppercase tracking-widest text-[9px] px-2.5 py-1 border-0",
+                          item.isActive ? "bg-indigo-50 text-indigo-600" : "bg-gray-100 text-gray-400"
+                        )}>
+                          {item.isActive ? 'Active' : 'Paused'}
+                        </Badge>
+                        
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-gray-300 hover:text-indigo-600 hover:bg-indigo-50 opacity-0 group-hover:opacity-100">
+                              <MoreVertical className="h-4 w-4" />
                             </Button>
-                        </form>
-                    </DialogContent>
-                </Dialog>
-            </div>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="rounded-xl border-gray-100 shadow-2xl p-1">
+                            {canEdit("CORE", "RECURRING") && (
+                              <DropdownMenuItem onClick={() => handleOpenDialog(item)} className="rounded-lg font-bold text-xs">
+                                <Pencil className="mr-2 h-4 w-4 text-indigo-500" /> Edit
+                              </DropdownMenuItem>
+                            )}
+                            {canDelete("CORE", "RECURRING") && (
+                              <DropdownMenuItem onClick={() => remove(item._id)} className="rounded-lg font-bold text-xs text-rose-500 hover:bg-rose-50 hover:text-rose-600">
+                                <Trash2 className="mr-2 h-4 w-4" /> Delete
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </header>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {isLoading ? (
-                    <div className="col-span-full flex flex-col items-center justify-center py-20 gap-4">
-                        <Loader2 className="h-12 w-12 animate-spin text-indigo-600" />
-                        <p>Syncing schedules...</p>
+                    <div className="space-y-6">
+                      <div>
+                        <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight leading-tight">{item.description}</h3>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">{item.interval}</span>
+                          <span className="w-1 h-1 bg-gray-200 rounded-full" />
+                          <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">Next Run: {item.nextRunDate}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-4 border-t border-gray-50">
+                        <div className="flex flex-col">
+                          <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Amount</span>
+                          <span className={cn(
+                            "text-2xl font-black leading-none",
+                            item.type === 'income' ? "text-emerald-500" : "text-rose-500"
+                          )}>
+                            ₹{(item.amount || 0).toLocaleString()}
+                          </span>
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          onClick={() => toggleStatus(item)} 
+                          className={cn(
+                            "rounded-xl h-10 px-4 font-black uppercase tracking-widest text-[9px] transition-all",
+                            item.isActive ? "text-amber-500 hover:bg-amber-50 hover:text-amber-600" : "text-emerald-500 hover:bg-emerald-50 hover:text-emerald-600"
+                          )}
+                        >
+                          {item.isActive ? 'Pause' : 'Resume'}
+                        </Button>
+                      </div>
                     </div>
-                ) : recurring.length === 0 ? (
-                    <div className="col-span-full border-2 border-dashed rounded-[2.5rem] py-24 text-center">
-                        <Activity className="h-16 w-16 mx-auto mb-6 text-indigo-200" />
-                        <h3 className="text-2xl font-bold">No automated transactions yet</h3>
-                    </div>
-                ) : (
-                    <AnimatePresence>
-                        {recurring.map((item: any, idx: number) => (
-                            <motion.div key={item._id} layout initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-                                <Card className={`group border-0 shadow-xl rounded-[2rem] overflow-hidden transition-all hover:-translate-y-1 ${item.isActive ? 'bg-white' : 'bg-gray-50'}`}>
-                                    <CardHeader className="p-6 pb-2">
-                                        <div className="flex justify-between items-start">
-                                            <div className="h-12 w-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600">
-                                                {item.type === 'income' ? <ArrowUpCircle className="h-6 w-6 text-emerald-500" /> : <ArrowDownCircle className="h-6 w-6 text-rose-500" />}
-                                            </div>
-                                            <Badge variant={item.isActive ? "default" : "secondary"}>{item.isActive ? 'Active' : 'Paused'}</Badge>
-                                            <div className="flex gap-1 absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-indigo-600"><MoreVertical className="h-4 w-4" /></Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end">
-                                                        {canEdit("CORE", "RECURRING") && (
-                                                            <DropdownMenuItem onClick={() => handleOpenDialog(item)}>
-                                                                <Pencil className="mr-2 h-4 w-4" /> Edit
-                                                            </DropdownMenuItem>
-                                                        )}
-                                                        {canDelete("CORE", "RECURRING") && (
-                                                            <DropdownMenuItem onClick={() => remove(item._id)} className="text-red-600">
-                                                                <Trash2 className="mr-2 h-4 w-4" /> Delete
-                                                            </DropdownMenuItem>
-                                                        )}
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            </div>
-                                        </div>
-                                        <CardTitle className="mt-4 text-xl font-bold">{item.description}</CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="p-6 pt-4">
-                                        <div className="flex items-end justify-between">
-                                            <span className={`text-2xl font-black ${item.type === 'income' ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                                ₹{(item.amount || 0).toLocaleString()}
-                                            </span>
-                                        </div>
-                                        <Button variant="outline" onClick={() => toggleStatus(item)} className="w-full mt-6 rounded-2xl">
-                                            {item.isActive ? 'Pause' : 'Resume'}
-                                        </Button>
-                                    </CardContent>
-                                </Card>
-                            </motion.div>
-                        ))}
-                    </AnimatePresence>
-                )}
-            </div>
-        </motion.div>
-    );
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        )}
+      </div>
+    </motion.div>
+  );
 }

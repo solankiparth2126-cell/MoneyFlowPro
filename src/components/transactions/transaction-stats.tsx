@@ -23,76 +23,76 @@ const itemVariants = {
 
 export function TransactionStats({ startingBalance, totalCredit, totalDebit, finalBalance }: TransactionStatsProps) {
   const formatCurrency = (amount: number) => 
-    `₹${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    `₹${amount.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       <motion.div variants={itemVariants}>
-        <Card className="border-0 shadow-lg hover-lift glass-iris overflow-hidden relative group">
-          <CardContent className="p-6 relative z-10">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-indigo-500/10 dark:bg-white/10 rounded-2xl shadow-sm text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
-                <Wallet className="h-5 w-5" />
+        <Card className="rounded-[2rem] border-gray-100 shadow-sm transition-all duration-500 hover:shadow-xl bg-white overflow-hidden relative group">
+          <CardContent className="p-8 relative z-10">
+            <div className="flex items-center justify-between mb-6">
+              <div className="p-3 bg-indigo-50 rounded-2xl border border-indigo-100 text-indigo-600">
+                <Wallet className="h-6 w-6" />
               </div>
-              <Badge variant="secondary" className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-md rounded-full font-black text-[9px] tracking-[0.15em] uppercase text-gray-900 dark:text-gray-100 border border-white/20">Opening</Badge>
+              <Badge variant="secondary" className="rounded-lg font-black uppercase tracking-widest text-[9px] px-2.5 py-1 bg-indigo-50 text-indigo-600 border-0">Opening</Badge>
             </div>
             <div className="space-y-1">
-              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-80">Start Balance</p>
-              <h3 className="text-2xl font-black tracking-tighter text-gray-900 dark:text-gray-50 tabular-nums">{formatCurrency(startingBalance)}</h3>
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Start Balance</p>
+              <h3 className="text-2xl font-black tracking-tight text-gray-900 tabular-nums">{formatCurrency(startingBalance)}</h3>
             </div>
           </CardContent>
         </Card>
       </motion.div>
 
       <motion.div variants={itemVariants}>
-        <Card className="border-0 shadow-lg hover-lift glass-iris overflow-hidden relative group">
-          <CardContent className="p-6 relative z-10">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-emerald-500/10 rounded-2xl shadow-sm text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                <ArrowDownRight className="h-5 w-5" />
+        <Card className="rounded-[2rem] border-gray-100 shadow-sm transition-all duration-500 hover:shadow-xl bg-white overflow-hidden relative group">
+          <CardContent className="p-8 relative z-10">
+            <div className="flex items-center justify-between mb-6">
+              <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-100 text-emerald-600">
+                <ArrowDownRight className="h-6 w-6" />
               </div>
-              <Badge variant="secondary" className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-md rounded-full font-black text-[9px] tracking-[0.15em] uppercase text-gray-900 dark:text-gray-100 border border-white/20">Inflow</Badge>
+              <Badge variant="secondary" className="rounded-lg font-black uppercase tracking-widest text-[9px] px-2.5 py-1 bg-emerald-50 text-emerald-600 border-0">Inflow</Badge>
             </div>
             <div className="space-y-1">
-              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-80">Total Credit</p>
-              <h3 className="text-2xl font-black tracking-tighter text-emerald-600 dark:text-emerald-400 tabular-nums">{formatCurrency(totalCredit)}</h3>
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Credit</p>
+              <h3 className="text-2xl font-black tracking-tight text-emerald-600 tabular-nums">{formatCurrency(totalCredit)}</h3>
             </div>
           </CardContent>
         </Card>
       </motion.div>
 
       <motion.div variants={itemVariants}>
-        <Card className="border-0 shadow-lg hover-lift glass-iris overflow-hidden relative group">
-          <CardContent className="p-6 relative z-10">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-rose-500/10 rounded-2xl shadow-sm text-rose-600 dark:text-rose-400 border border-rose-500/20">
-                <ArrowUpRight className="h-5 w-5" />
+        <Card className="rounded-[2rem] border-gray-100 shadow-sm transition-all duration-500 hover:shadow-xl bg-white overflow-hidden relative group">
+          <CardContent className="p-8 relative z-10">
+            <div className="flex items-center justify-between mb-6">
+              <div className="p-3 bg-rose-50 rounded-2xl border border-rose-100 text-rose-600">
+                <ArrowUpRight className="h-6 w-6" />
               </div>
-              <Badge variant="secondary" className="bg-white/40 dark:bg-gray-800/40 backdrop-blur-md rounded-full font-black text-[9px] tracking-[0.15em] uppercase text-gray-900 dark:text-gray-100 border border-white/20">Outflow</Badge>
+              <Badge variant="secondary" className="rounded-lg font-black uppercase tracking-widest text-[9px] px-2.5 py-1 bg-rose-50 text-rose-600 border-0">Outflow</Badge>
             </div>
             <div className="space-y-1">
-              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] opacity-80">Total Debit</p>
-              <h3 className="text-2xl font-black tracking-tighter text-rose-600 dark:text-rose-400 tabular-nums">{formatCurrency(totalDebit)}</h3>
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Debit</p>
+              <h3 className="text-2xl font-black tracking-tight text-rose-600 tabular-nums">{formatCurrency(totalDebit)}</h3>
             </div>
           </CardContent>
         </Card>
       </motion.div>
 
       <motion.div variants={itemVariants}>
-        <Card className="border-0 shadow-xl hover-lift bg-indigo-600 dark:bg-indigo-900 overflow-hidden relative group">
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/40 to-purple-500/40 opacity-50" />
-          <CardContent className="p-6 relative z-10">
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-white/20 rounded-2xl text-white shadow-xl shadow-black/10 backdrop-blur-md border border-white/20">
-                <Sparkles className="h-5 w-5" />
+        <Card className="rounded-[2rem] border-none shadow-xl bg-indigo-600 text-white overflow-hidden relative group">
+          <div className="absolute top-0 right-0 p-8 opacity-10">
+            <Sparkles className="h-24 w-24 rotate-12" />
+          </div>
+          <CardContent className="p-8 relative z-10">
+            <div className="flex items-center justify-between mb-6">
+              <div className="p-3 bg-white/20 rounded-2xl text-white backdrop-blur-md border border-white/20 shadow-xl shadow-black/5">
+                <Sparkles className="h-6 w-6 text-white" />
               </div>
-              <Badge variant="secondary" className="bg-white/20 text-white rounded-full font-black text-[9px] tracking-[0.15em] uppercase border-0 backdrop-blur-md border border-white/10">Closing</Badge>
+              <Badge variant="secondary" className="rounded-lg font-black uppercase tracking-widest text-[9px] px-2.5 py-1 bg-white/20 text-white border-0 backdrop-blur-md">Closing</Badge>
             </div>
             <div className="space-y-1">
-              <p className="text-[10px] font-black text-indigo-100/80 uppercase tracking-[0.2em] opacity-80">Current Net</p>
-              <h3 className={`text-2xl font-black tracking-tighter tabular-nums ${finalBalance < 0 ? 'text-rose-200' : 'text-white'}`}>
-                {formatCurrency(finalBalance)}
-              </h3>
+              <p className="text-[10px] font-black text-indigo-100/70 uppercase tracking-widest">Current Balance</p>
+              <h3 className="text-2xl font-black tracking-tight text-white tabular-nums">{formatCurrency(finalBalance)}</h3>
             </div>
           </CardContent>
         </Card>

@@ -6,17 +6,17 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Building2, Check, Plus } from 'lucide-react';
+import { Loader2, Building2, Check, Plus, ArrowRight, Sparkles, ShieldCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCompanies } from '@/hooks/use-masters';
 import { useLedgers } from '@/hooks/use-ledgers';
 import { supabase } from '@/lib/supabase';
+import { cn } from '@/lib/utils';
 
 export function CompanySelector() {
     const { user, companyId, setCompanyId } = useAuth();
-    const { companies, isLoading: isCompaniesLoading, create: createCompanyDB } = useCompanies();
-    const { create: createLedgerDB } = useLedgers();
+    const { companies, isLoading: isCompaniesLoading } = useCompanies();
     
     const [isCreating, setIsCreating] = useState(false);
     const [isAddingNew, setIsAddingNew] = useState(false);
@@ -25,11 +25,10 @@ export function CompanySelector() {
     const [creditCount, setCreditCount] = useState(0);
     const [bankNames, setBankNames] = useState<string[]>([]);
     const [creditNames, setCreditNames] = useState<string[]>([]);
-    const [setupStep, setSetupStep] = useState(1); // 1: Info, 2: Names
+    const [setupStep, setSetupStep] = useState(1);
     const { toast } = useToast();
 
     useEffect(() => {
-        // If companies exist and none selected, auto-select the first one to avoid showing the "Create" screen
         if (!isCompaniesLoading && companies.length > 0 && !companyId && !isAddingNew) {
             setCompanyId(companies[0].id!);
         }
@@ -41,13 +40,11 @@ export function CompanySelector() {
 
         try {
             setIsCreating(true);
-            
-            // 1. Create company in Supabase
             const { data: newCompany, error: companyError } = await supabase
                 .from('companies')
                 .insert([{
                     name: newCompanyName,
-                    description: "Primary Company",
+                    description: "Primary Workspace",
                     contact_email: user?.email || "",
                     is_active: true,
                     bank_account_count: bankCount,
@@ -57,70 +54,55 @@ export function CompanySelector() {
                 .select()
                 .single();
 
-      if (companyError) throw companyError;
-      const newCompanyId = newCompany.id;
+            if (companyError) throw companyError;
+            const newCompanyId = newCompany.id;
 
-      // 2. Grant the user access to their own company
-      const { error: accessError } = await supabase
-          .from('user_company_access')
-          .insert([{
-              user_id: user.id,
-              company_id: newCompanyId,
-              role: 'owner'
-          }]);
-
-      if (accessError) throw accessError;
-
-      // 3. Create Ledgers
-            for (const name of bankNames) {
-              if (name.trim()) {
-                await supabase.from('ledgers').insert([{
+            const { error: accessError } = await supabase
+                .from('user_company_access')
+                .insert([{
+                    user_id: user.id,
                     company_id: newCompanyId,
-                    name: name.trim(),
-                    account_type: "bank",
-                    balance: 0,
-                    initial_balance: 0,
-                    currency: "INR",
-                    icon: "Wallet",
+                    role: 'owner'
                 }]);
-              }
+
+            if (accessError) throw accessError;
+
+            // Create Ledgers
+            for (const name of bankNames) {
+                if (name.trim()) {
+                    await supabase.from('ledgers').insert([{
+                        company_id: newCompanyId,
+                        name: name.trim(),
+                        account_type: "bank",
+                        balance: 0,
+                        initial_balance: 0,
+                        currency: "INR",
+                        icon: "Wallet",
+                    }]);
+                }
             }
 
             for (const name of creditNames) {
-              if (name.trim()) {
-                await supabase.from('ledgers').insert([{
-                    company_id: newCompanyId,
-                    name: name.trim(),
-                    account_type: "credit",
-                    balance: 0,
-                    initial_balance: 0,
-                    currency: "INR",
-                    icon: "CreditCard",
-                }]);
-              }
+                if (name.trim()) {
+                    await supabase.from('ledgers').insert([{
+                        company_id: newCompanyId,
+                        name: name.trim(),
+                        account_type: "credit",
+                        balance: 0,
+                        initial_balance: 0,
+                        currency: "INR",
+                        icon: "CreditCard",
+                    }]);
+                }
             }
 
-            toast({
-                title: "Success",
-                description: `Workspace "${newCompanyName}" created. Entering dashboard...`,
-            });
-
-            // Set the ID and then force a full refresh to ensure all hooks see the new company immediately
+            toast({ title: "Success", description: "Workspace initialized successfully." });
             setCompanyId(newCompanyId);
             setIsAddingNew(false);
-            
-            // Small delay to allow state to propagate then force reload to clean route state
-            setTimeout(() => {
-                window.location.href = '/';
-            }, 500);
+            setTimeout(() => { window.location.href = '/'; }, 500);
             
         } catch (error: any) {
-            console.error("Creation error:", error);
-            toast({
-                variant: "destructive",
-                title: "Error",
-                description: error.message || "Failed to create company.",
-            });
+            toast({ variant: "destructive", title: "Creation Failed", description: error.message });
         } finally {
             setIsCreating(false);
         }
@@ -128,47 +110,46 @@ export function CompanySelector() {
 
     if (isCompaniesLoading && !isAddingNew) {
         return (
-            <div className="flex h-screen w-full items-center justify-center bg-gray-50/50 dark:bg-gray-950/50">
-                <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="h-10 w-10 animate-spin text-indigo-600 dark:text-indigo-400" />
-                    <p className="font-medium text-gray-600 dark:text-gray-400">Setting up your workspace...</p>
+            <div className="flex h-screen w-full items-center justify-center bg-white">
+                <div className="flex flex-col items-center gap-6">
+                    <div className="h-20 w-20 bg-indigo-600 rounded-[2.5rem] flex items-center justify-center shadow-2xl shadow-indigo-100 animate-bounce">
+                        <Building2 className="h-10 w-10 text-white" />
+                    </div>
+                    <p className="font-black text-[10px] uppercase tracking-[0.4em] text-indigo-600/40 animate-pulse">Synchronizing Infrastructure...</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-indigo-50 to-white dark:from-indigo-950 dark:to-gray-950 p-4">
+        <div className="flex min-h-screen w-full items-center justify-center bg-gray-50/30 p-6">
             <AnimatePresence mode="wait">
                 {(companies.length === 0 || isAddingNew) ? (
                     <motion.div
                         key="create"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 1.05 }}
+                        className="w-full max-w-xl"
                     >
-                        <Card className="w-full max-w-md shadow-2xl border-indigo-100 dark:border-indigo-900 bg-white dark:bg-gray-900 rounded-[2rem] overflow-hidden">
+                        <Card className="shadow-2xl border-0 bg-white rounded-[3rem] overflow-hidden">
                             <form onSubmit={handleCreateCompany}>
-                                <CardHeader className="text-center pb-2">
-                                    <div className="mx-auto h-16 w-16 bg-indigo-100 dark:bg-indigo-900/50 rounded-2xl flex items-center justify-center mb-4 text-indigo-600 dark:text-indigo-400">
-                                        <Building2 className="h-8 w-8" />
+                                <div className="p-12 text-center bg-indigo-600/5">
+                                    <div className="mx-auto h-20 w-20 bg-white rounded-[2rem] flex items-center justify-center mb-6 shadow-xl shadow-indigo-100 border border-indigo-50">
+                                        <Building2 className="h-10 w-10 text-indigo-600" />
                                     </div>
-                                    <CardTitle className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-900 to-indigo-600 dark:from-indigo-100 dark:to-indigo-400">
-                                        Create Your Company
-                                    </CardTitle>
-                                    <CardDescription className="text-base pt-2">
-                                        Welcome to MoneyFlow Pro! Let's start by setting up your company profile.
-                                    </CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-4 pt-4">
+                                    <h1 className="text-3xl font-black text-gray-900 tracking-tight uppercase">Provision Workspace</h1>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600/50 mt-2">Initialize your private financial ecosystem</p>
+                                </div>
+                                
+                                <CardContent className="p-12 space-y-10">
                                     {setupStep === 1 ? (
-                                      <>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="company-name" className="text-sm font-semibold text-gray-700">Company Name</Label>
+                                      <div className="space-y-8">
+                                        <div className="space-y-3">
+                                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Entity Designation</Label>
                                             <Input
-                                                id="company-name"
-                                                placeholder="e.g. Acme Corporation Pvt Ltd"
-                                                className="h-11 rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 focus:border-indigo-400 focus:ring-indigo-100 transition-all font-medium uppercase"
+                                                placeholder="Enter Company Title..."
+                                                className="h-16 rounded-2xl border-gray-100 bg-gray-50/50 focus:bg-white focus:ring-1 focus:ring-indigo-600 transition-all font-black text-lg uppercase tracking-tight"
                                                 value={newCompanyName}
                                                 onChange={(e) => setNewCompanyName(e.target.value)}
                                                 required
@@ -176,15 +157,14 @@ export function CompanySelector() {
                                             />
                                         </div>
 
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="bank-count" className="text-sm font-semibold text-gray-700">Bank Accounts</Label>
+                                        <div className="grid grid-cols-2 gap-8">
+                                            <div className="space-y-3">
+                                                <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Asset Vaults (Banks)</Label>
                                                 <Input
-                                                    id="bank-count"
                                                     type="number"
                                                     min="0"
-                                                    max="5"
-                                                    className="h-11 rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 focus:border-indigo-400 focus:ring-indigo-100 transition-all"
+                                                    max="10"
+                                                    className="h-16 rounded-2xl border-gray-100 bg-gray-50/50 font-black text-lg"
                                                     value={bankCount}
                                                     onChange={(e) => {
                                                         const val = parseInt(e.target.value) || 0;
@@ -193,14 +173,13 @@ export function CompanySelector() {
                                                     }}
                                                 />
                                             </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="credit-count" className="text-sm font-semibold text-gray-700">Credit Cards</Label>
+                                            <div className="space-y-3">
+                                                <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Liability Nodes (Credit)</Label>
                                                 <Input
-                                                    id="credit-count"
                                                     type="number"
                                                     min="0"
-                                                    max="5"
-                                                    className="h-11 rounded-xl border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 focus:border-indigo-400 focus:ring-indigo-100 transition-all"
+                                                    max="10"
+                                                    className="h-16 rounded-2xl border-gray-100 bg-gray-50/50 font-black text-lg"
                                                     value={creditCount}
                                                     onChange={(e) => {
                                                         const val = parseInt(e.target.value) || 0;
@@ -210,14 +189,13 @@ export function CompanySelector() {
                                                 />
                                             </div>
                                         </div>
-                                      </>
+                                      </div>
                                     ) : (
-                                      <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-2 custom-scrollbar">
-                                          <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Name your accounts</p>
-                                          
+                                      <div className="space-y-6 max-h-[40vh] overflow-y-auto pr-4 custom-scrollbar">
+                                          <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-4">Node Configuration</p>
                                           {bankNames.map((name, i) => (
-                                              <div key={`bank-${i}`} className="space-y-1.5">
-                                                  <Label className="text-xs font-bold text-indigo-600">BANK ACCOUNT {i + 1}</Label>
+                                              <div key={`bank-${i}`} className="space-y-2">
+                                                  <Label className="text-[8px] font-black text-indigo-400 uppercase tracking-widest">BANK_NODE_0{i + 1}</Label>
                                                   <Input 
                                                       value={name}
                                                       onChange={(e) => {
@@ -225,15 +203,13 @@ export function CompanySelector() {
                                                           newNames[i] = e.target.value;
                                                           setBankNames(newNames);
                                                       }}
-                                                      placeholder="e.g. HDFC Bank, SBI"
-                                                      className="h-10 rounded-xl"
+                                                      className="h-12 rounded-xl border-gray-100 font-bold"
                                                   />
                                               </div>
                                           ))}
-
                                           {creditNames.map((name, i) => (
-                                              <div key={`credit-${i}`} className="space-y-1.5 pt-1">
-                                                  <Label className="text-xs font-bold text-rose-600">CREDIT CARD {i + 1}</Label>
+                                              <div key={`credit-${i}`} className="space-y-2 pt-2">
+                                                  <Label className="text-[8px] font-black text-rose-400 uppercase tracking-widest">CREDIT_FACILITY_0{i + 1}</Label>
                                                   <Input 
                                                       value={name}
                                                       onChange={(e) => {
@@ -241,20 +217,20 @@ export function CompanySelector() {
                                                           newNames[i] = e.target.value;
                                                           setCreditNames(newNames);
                                                       }}
-                                                      placeholder="e.g. ICICI Amazon, Axis Ace"
-                                                      className="h-10 rounded-xl"
+                                                      className="h-12 rounded-xl border-gray-100 font-bold"
                                                   />
                                               </div>
                                           ))}
                                       </div>
                                     )}
                                 </CardContent>
-                                <CardFooter className="pb-8 gap-3 flex-col sm:flex-row">
+                                
+                                <CardFooter className="p-12 pt-0 gap-4 flex-col sm:flex-row">
                                     {setupStep === 2 && (
                                         <Button
                                             type="button"
                                             variant="ghost"
-                                            className="w-full sm:w-auto h-11 font-bold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                                            className="w-full sm:w-auto h-16 rounded-2xl font-black uppercase tracking-widest text-[10px] text-gray-400"
                                             onClick={() => setSetupStep(1)}
                                             disabled={isCreating}
                                         >
@@ -263,26 +239,20 @@ export function CompanySelector() {
                                     )}
                                     <Button
                                         type={setupStep === 2 ? "submit" : "button"}
-                                        className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-bold transition-all shadow-lg shadow-indigo-200 dark:shadow-indigo-950/50"
+                                        className="w-full h-16 bg-indigo-600 hover:bg-indigo-700 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-2xl shadow-indigo-100 transition-all active:scale-95 gap-3"
                                         disabled={isCreating || !newCompanyName.trim()}
                                         onClick={() => {
                                             if (setupStep === 1) {
-                                                if (bankCount > 0 || creditCount > 0) {
-                                                    setSetupStep(2);
-                                                } else {
-                                                    handleCreateCompany();
-                                                }
+                                                if (bankCount > 0 || creditCount > 0) setSetupStep(2);
+                                                else handleCreateCompany();
                                             }
                                         }}
                                     >
                                         {isCreating ? (
-                                            <>
-                                                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                                                Creating...
-                                            </>
+                                            <Loader2 className="h-6 w-6 animate-spin" />
                                         ) : setupStep === 1 ? (
-                                            (bankCount > 0 || creditCount > 0) ? "Next: Setup Accounts" : "Launch Workspace"
-                                        ) : "Complete Setup"}
+                                            <>Proceed to configuration <ArrowRight className="h-4 w-4" /></>
+                                        ) : "Authorize Workspace"}
                                     </Button>
                                 </CardFooter>
                             </form>
@@ -294,52 +264,64 @@ export function CompanySelector() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
+                        className="w-full max-w-xl"
                     >
-                        <Card className="w-full max-w-lg shadow-2xl border-indigo-100 dark:border-indigo-900 overflow-hidden bg-white dark:bg-gray-900 rounded-[2.5rem]">
-                            <CardHeader className="text-center bg-gray-50/50 dark:bg-gray-800/30 border-b dark:border-gray-800 pb-6">
-                                <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100 font-display">Select Workspace</CardTitle>
-                                <CardDescription className="text-base px-4">
-                                    Choose which company you'd like to manage today.
+                        <Card className="shadow-2xl border-0 overflow-hidden bg-white rounded-[3.5rem]">
+                            <CardHeader className="text-center bg-indigo-600/5 p-12 border-b border-indigo-50">
+                                <div className="mx-auto h-20 w-20 bg-white rounded-[2rem] flex items-center justify-center mb-6 shadow-xl shadow-indigo-100 border border-indigo-50">
+                                    <ShieldCheck className="h-10 w-10 text-indigo-600" />
+                                </div>
+                                <CardTitle className="text-3xl font-black text-gray-900 tracking-tight uppercase">Select Environment</CardTitle>
+                                <CardDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400 mt-2">
+                                    Secure entry to financial workspace
                                 </CardDescription>
                             </CardHeader>
-                            <CardContent className="p-0">
-                                <div className="max-h-[400px] overflow-y-auto">
+                            <CardContent className="p-6">
+                                <div className="space-y-3 max-h-[400px] overflow-y-auto px-4 py-6 custom-scrollbar">
                                     {companies.map((company: any) => (
                                         <button
                                             key={company.id}
                                             onClick={() => setCompanyId(company.id)}
-                                            className="w-full text-left p-5 flex items-center justify-between hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 transition-all border-b dark:border-gray-800 last:border-0 group"
+                                            className={cn(
+                                                "w-full text-left p-6 flex items-center justify-between rounded-[2rem] transition-all group border-2",
+                                                companyId === company.id 
+                                                ? "bg-indigo-600 border-indigo-600 text-white shadow-2xl shadow-indigo-200" 
+                                                : "bg-white border-transparent hover:bg-gray-50/80 text-gray-900"
+                                            )}
                                         >
-                                            <div className="flex items-center gap-4">
-                                                <div className="h-12 w-12 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
-                                                    <Building2 className="h-6 w-6" />
+                                            <div className="flex items-center gap-6">
+                                                <div className={cn(
+                                                    "h-14 w-14 rounded-2xl flex items-center justify-center border transition-all duration-500 group-hover:rotate-6 shadow-sm",
+                                                    companyId === company.id ? "bg-white/10 border-white/20 text-white" : "bg-white border-gray-100 text-indigo-600"
+                                                )}>
+                                                    <Building2 className="h-7 w-7" />
                                                 </div>
-                                                <div>
-                                                    <h3 className="font-bold text-gray-900 dark:text-gray-100 group-hover:text-indigo-700 dark:group-hover:text-indigo-400 transition-colors uppercase tracking-tight">{company.name}</h3>
-                                                    {company.gst_number && <p className="text-xs text-muted-foreground font-mono mt-0.5">GST: {company.gst_number}</p>}
+                                                <div className="space-y-1">
+                                                    <h3 className="font-black text-lg uppercase tracking-tight leading-none">{company.name}</h3>
+                                                    <p className={cn("text-[9px] font-black uppercase tracking-widest", companyId === company.id ? "text-indigo-200" : "text-gray-400")}>
+                                                        Authorized Instance
+                                                    </p>
                                                 </div>
                                             </div>
                                             {companyId === company.id && (
-                                                <div className="h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
-                                                    <Check className="h-5 w-5" />
+                                                <div className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20">
+                                                    <Check className="h-6 w-6" />
                                                 </div>
                                             )}
                                         </button>
                                     ))}
                                 </div>
                             </CardContent>
-                            {companies.length > 0 && (
-                                <CardFooter className="p-4 bg-gray-50/30 dark:bg-gray-800/30 flex justify-center">
-                                    <Button
-                                        variant="ghost"
-                                        className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 font-semibold gap-2"
-                                        onClick={() => setIsAddingNew(true)}
-                                    >
-                                        <Plus className="h-4 w-4" />
-                                        Add New Company
-                                    </Button>
-                                </CardFooter>
-                            )}
+                            <CardFooter className="p-12 pt-0 flex justify-center">
+                                <Button
+                                    variant="ghost"
+                                    className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 font-black text-[10px] uppercase tracking-widest gap-2 bg-indigo-50/50 rounded-2xl px-8 h-14"
+                                    onClick={() => setIsAddingNew(true)}
+                                >
+                                    <Plus className="h-4 w-4" />
+                                    Initialize New Environment
+                                </Button>
+                            </CardFooter>
                         </Card>
                     </motion.div>
                 )}

@@ -16,7 +16,8 @@ import { Building2, Calendar, Plus, Pencil, Trash2, Loader2, Save } from "lucide
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { useAuth } from "@/context/auth-context"
 import { usePermissions } from "@/hooks/use-permissions";
-import { motion } from "framer-motion";
+import { motion } from "framer-motion"
+import { cn } from "@/lib/utils"
 
 export function MastersClient() {
     const { user } = useAuth();
@@ -118,177 +119,277 @@ export function MastersClient() {
     };
 
     return (
-        <motion.div 
-            initial="hidden" 
-            animate="visible" 
-            variants={containerVariants}
-            className="container mx-auto py-2 px-2 max-w-7xl space-y-4"
-        >
-            <div className="flex items-center gap-2">
-                <div className="p-1.5 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl text-indigo-600">
-                    <Building2 className="h-5 w-5" />
+    <motion.div 
+      initial="hidden" 
+      animate="visible" 
+      variants={containerVariants}
+      className="space-y-8 p-1"
+    >
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-1">
+        <div>
+           <h1 className="text-3xl font-black tracking-tight text-gray-900 uppercase leading-none">
+             Masters Management
+           </h1>
+           <p className="text-[11px] font-black text-indigo-600 uppercase tracking-[0.2em] mt-3 ml-1">
+             Global configuration for your financial ecosystem
+           </p>
+        </div>
+      </div>
+
+      <Tabs defaultValue={defaultTab} className="space-y-6">
+        <TabsList className="bg-gray-100/50 p-1.5 h-14 rounded-2xl border border-gray-100 gap-2">
+          <TabsTrigger 
+            value="companies" 
+            className="rounded-xl px-8 h-11 font-black uppercase tracking-widest text-[10px] data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-lg data-[state=active]:shadow-indigo-100/50 transition-all"
+          >
+            Companies
+          </TabsTrigger>
+          <TabsTrigger 
+            value="fy" 
+            className="rounded-xl px-8 h-11 font-black uppercase tracking-widest text-[10px] data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-lg data-[state=active]:shadow-indigo-100/50 transition-all"
+          >
+            Financial Years
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="companies" className="mt-0">
+          <Card className="rounded-[2.5rem] border-gray-100 shadow-xl shadow-gray-200/20 bg-white overflow-hidden">
+            <header className="flex flex-col md:flex-row md:items-center justify-between p-8 border-b border-gray-50 gap-4">
+              <div>
+                <h2 className="text-xl font-black text-gray-900 uppercase">Company Master</h2>
+                <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mt-1">Manage multiple business entities</p>
+              </div>
+              <Button 
+                onClick={() => setIsCompanyDialogOpen(true)}
+                className="bg-indigo-600 hover:bg-indigo-700 h-12 px-6 rounded-xl shadow-lg shadow-indigo-100 font-black uppercase tracking-widest text-[10px] gap-2 transition-all"
+              >
+                <Plus className="h-4 w-4" /> Add Company
+              </Button>
+            </header>
+
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader className="bg-gray-50/50">
+                  <TableRow className="hover:bg-transparent border-b border-gray-50">
+                    <TableHead className="font-black text-[10px] uppercase tracking-widest py-6 px-8">Company Name</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase tracking-widest py-6 px-8">Contact Info</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase tracking-widest py-6 px-8">Status</TableHead>
+                    <TableHead className="text-right font-black text-[10px] uppercase tracking-widest py-6 px-8">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {loadingCompany ? (
+                    <TableRow><TableCell colSpan={4} className="text-center py-24"><Loader2 className="animate-spin h-10 w-10 mx-auto text-indigo-600" /></TableCell></TableRow>
+                  ) : companies.length === 0 ? (
+                    <TableRow><TableCell colSpan={4} className="text-center py-24 text-gray-300 font-black uppercase tracking-widest text-xs">No companies configured</TableCell></TableRow>
+                  ) : companies.map((c: any) => (
+                    <TableRow key={c.id} className="hover:bg-gray-50/50 transition-colors border-b border-gray-50 last:border-0 group">
+                      <TableCell className="px-8 py-6">
+                        <div className="font-black text-gray-900 uppercase tracking-tight">{c.name}</div>
+                        <div className="text-[10px] font-bold text-gray-400 mt-0.5 uppercase tracking-wider">{c.gstNumber || 'NO GST'}</div>
+                      </TableCell>
+                      <TableCell className="px-8 py-6">
+                        <div className="text-[11px] font-bold text-gray-600">{c.contactEmail || 'No Email'}</div>
+                        <div className="text-[10px] font-bold text-gray-400 mt-0.5">{c.contactPhone || 'No Phone'}</div>
+                      </TableCell>
+                      <TableCell className="px-8 py-6">
+                        <Badge className={cn(
+                          "rounded-lg font-black uppercase tracking-widest text-[9px] px-2.5 py-1 border-0",
+                          c.isActive ? "bg-indigo-50 text-indigo-600" : "bg-gray-100 text-gray-400"
+                        )}>
+                          {c.isActive ? 'Active' : 'Inactive'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right px-8 py-6">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-9 w-9 rounded-xl text-gray-300 hover:text-indigo-600 hover:bg-white hover:shadow-sm transition-all"
+                          onClick={() => { setEditingCompanyId(c.id); setCompanyForm(c); setIsCompanyDialogOpen(true); }}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="fy" className="mt-0">
+          <Card className="rounded-[2.5rem] border-gray-100 shadow-xl shadow-gray-200/20 bg-white overflow-hidden">
+            <header className="flex flex-col md:flex-row md:items-center justify-between p-8 border-b border-gray-50 gap-4">
+              <div>
+                <h2 className="text-xl font-black text-gray-900 uppercase">Financial Year Master</h2>
+                <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mt-1">Configure accounting periods</p>
+              </div>
+              <Button 
+                onClick={() => { setEditingFYId(null); setIsFYDialogOpen(true); }}
+                className="bg-indigo-600 hover:bg-indigo-700 h-12 px-6 rounded-xl shadow-lg shadow-indigo-100 font-black uppercase tracking-widest text-[10px] gap-2 transition-all"
+              >
+                <Plus className="h-4 w-4" /> Create FY
+              </Button>
+            </header>
+
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader className="bg-gray-50/50">
+                  <TableRow className="hover:bg-transparent border-b border-gray-50">
+                    <TableHead className="font-black text-[10px] uppercase tracking-widest py-6 px-8">FY Name</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase tracking-widest py-6 px-8">Period Range</TableHead>
+                    <TableHead className="font-black text-[10px] uppercase tracking-widest py-6 px-8">Status</TableHead>
+                    <TableHead className="text-right font-black text-[10px] uppercase tracking-widest py-6 px-8">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {loadingFY ? (
+                    <TableRow><TableCell colSpan={4} className="text-center py-24"><Loader2 className="animate-spin h-10 w-10 mx-auto text-indigo-600" /></TableCell></TableRow>
+                  ) : financialYears.length === 0 ? (
+                    <TableRow><TableCell colSpan={4} className="text-center py-24 text-gray-300 font-black uppercase tracking-widest text-xs">No periods configured</TableCell></TableRow>
+                  ) : financialYears.map((fy: any) => (
+                    <TableRow key={fy.id} className="hover:bg-gray-50/50 transition-colors border-b border-gray-50 last:border-0 group">
+                      <TableCell className="px-8 py-6 font-black text-gray-900 uppercase tracking-tight text-sm">{fy.name}</TableCell>
+                      <TableCell className="px-8 py-6">
+                        <div className="flex items-center gap-2 text-[11px] font-mono font-bold text-gray-500">
+                          {fy.startDate} <span className="text-gray-200">→</span> {fy.endDate}
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-8 py-6">
+                        <Badge className={cn(
+                          "rounded-lg font-black uppercase tracking-widest text-[9px] px-2.5 py-1 border-0",
+                          fy.isActive ? "bg-indigo-50 text-indigo-600" : "bg-gray-100 text-gray-400"
+                        )}>
+                          {fy.isActive ? 'Current' : 'Closed'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right px-8 py-6">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-9 w-9 rounded-xl text-gray-300 hover:text-indigo-600 hover:bg-white hover:shadow-sm transition-all"
+                          onClick={() => { setEditingFYId(fy.id); setFyForm(fy); setIsFYDialogOpen(true); }}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+
+      {/* Company Dialog */}
+      <Dialog open={isCompanyDialogOpen} onOpenChange={setIsCompanyDialogOpen}>
+        <DialogContent className="sm:max-w-[540px] rounded-[2rem] p-0 overflow-hidden border-0 shadow-2xl bg-white">
+          <div className="p-8 pb-4">
+            <DialogHeader>
+              <div className="flex items-center gap-4 mb-2">
+                <div className="h-12 w-12 bg-indigo-50 rounded-xl flex items-center justify-center border border-indigo-100">
+                  <Building2 className="h-6 w-6 text-indigo-600" />
                 </div>
-                <h1 className="text-xl font-bold tracking-tight">Masters Management</h1>
+                <div>
+                  <DialogTitle className="text-2xl font-black tracking-tight text-gray-900 uppercase">
+                    {editingCompanyId ? 'Update Entity' : 'New Entity'}
+                  </DialogTitle>
+                  <DialogDescription className="text-gray-500 text-xs font-semibold">
+                    Configure business workspace & compliance.
+                  </DialogDescription>
+                </div>
+              </div>
+            </DialogHeader>
+          </div>
+
+          <form onSubmit={handleSaveCompany} className="px-8 pb-8 space-y-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="col-span-2 space-y-1.5">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-gray-400 ml-1">Business Name</label>
+                <Input 
+                  value={companyForm.name} 
+                  onChange={e => setCompanyForm({ ...companyForm, name: e.target.value })} 
+                  placeholder="e.g. Acme Financial Group" 
+                  required 
+                  className="h-12 rounded-xl border-gray-100 bg-gray-50/50 focus:bg-white focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-gray-900" 
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-gray-400 ml-1">PAN Number</label>
+                <Input value={companyForm.panNumber} onChange={e => setCompanyForm({ ...companyForm, panNumber: e.target.value })} placeholder="ABCDE1234F" className="h-12 rounded-xl border-gray-100 bg-gray-50/50 font-bold uppercase" />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-gray-400 ml-1">GST Number</label>
+                <Input value={companyForm.gstNumber} onChange={e => setCompanyForm({ ...companyForm, gstNumber: e.target.value })} placeholder="22AAAAA0000A1Z5" className="h-12 rounded-xl border-gray-100 bg-gray-50/50 font-bold uppercase" />
+              </div>
+
+              <div className="col-span-2 space-y-1.5">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-gray-400 ml-1">Description</label>
+                <Textarea value={companyForm.description} onChange={e => setCompanyForm({ ...companyForm, description: e.target.value })} placeholder="General business context..." className="rounded-xl min-h-[80px] border-gray-100 bg-gray-50/50 font-bold text-sm" />
+              </div>
             </div>
 
-            <Tabs defaultValue={defaultTab} className="space-y-4">
-                <TabsList className="bg-muted/50 p-1 h-9">
-                    <TabsTrigger value="companies">Companies</TabsTrigger>
-                    <TabsTrigger value="fy">Financial Years</TabsTrigger>
-                </TabsList>
+            <Button type="submit" disabled={isSubmitting} className="w-full h-14 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-100 transition-all font-black text-lg uppercase tracking-widest">
+              {isSubmitting ? <Loader2 className="h-6 w-6 animate-spin" /> : 'Save Entity'}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
 
-                <TabsContent value="companies">
-                    <Card className="border-0 shadow-xl overflow-hidden">
-                        <CardHeader className="flex flex-row items-center justify-between">
-                            <CardTitle>Company Master</CardTitle>
-                            <Button onClick={() => setIsCompanyDialogOpen(true)}><Plus className="h-4 w-4 mr-2" /> Add Company</Button>
-                        </CardHeader>
-                        <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Company Name</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {loadingCompany ? (
-                                        <TableRow><TableCell colSpan={3} className="text-center py-8">Loading...</TableCell></TableRow>
-                                    ) : companies.map((c: any) => (
-                                        <TableRow key={c.id}>
-                                            <TableCell className="font-medium">{c.name}</TableCell>
-                                            <TableCell><Badge>{c.isActive ? 'Active' : 'Inactive'}</Badge></TableCell>
-                                            <TableCell className="text-right">
-                                                <Button variant="ghost" size="icon" onClick={() => { setEditingCompanyId(c.id); setCompanyForm(c); setIsCompanyDialogOpen(true); }}><Pencil className="h-4 w-4" /></Button>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
+      {/* FY Dialog */}
+      <Dialog open={isFYDialogOpen} onOpenChange={setIsFYDialogOpen}>
+        <DialogContent className="sm:max-w-[480px] rounded-[2rem] p-0 overflow-hidden border-0 shadow-2xl bg-white">
+          <div className="p-8 pb-4">
+            <DialogHeader>
+              <div className="flex items-center gap-4 mb-2">
+                <div className="h-12 w-12 bg-indigo-50 rounded-xl flex items-center justify-center border border-indigo-100">
+                  <Calendar className="h-6 w-6 text-indigo-600" />
+                </div>
+                <div>
+                  <DialogTitle className="text-2xl font-black tracking-tight text-gray-900 uppercase">
+                    {editingFYId ? 'Update FY' : 'New period'}
+                  </DialogTitle>
+                  <DialogDescription className="text-gray-500 text-xs font-semibold">
+                    Set up accounting period.
+                  </DialogDescription>
+                </div>
+              </div>
+            </DialogHeader>
+          </div>
 
-                <TabsContent value="fy">
-                    <Card className="border-0 shadow-xl overflow-hidden rounded-[1.5rem]">
-                        <CardHeader className="flex flex-row items-center justify-between pb-2 bg-gray-50/50 dark:bg-gray-800/30">
-                            <div>
-                                <CardTitle className="text-lg font-bold">Financial Year Master</CardTitle>
-                                <CardDescription className="text-xs">Manage accounting periods and start dates.</CardDescription>
-                            </div>
-                            <Button onClick={() => { setEditingFYId(null); setIsFYDialogOpen(true); }} className="rounded-xl h-9 font-bold bg-indigo-600 hover:bg-indigo-700 shadow-md">
-                                <Plus className="h-4 w-4 mr-2" /> 
-                                Create FY
-                            </Button>
-                        </CardHeader>
-                        <CardContent className="p-0">
-                            <Table>
-                                <TableHeader className="bg-gray-50/30 dark:bg-gray-800/20">
-                                    <TableRow className="hover:bg-transparent border-b border-gray-100 dark:border-gray-800">
-                                        <TableHead className="font-bold text-[10px] uppercase tracking-widest py-3">FY Name</TableHead>
-                                        <TableHead className="font-bold text-[10px] uppercase tracking-widest py-3">Period</TableHead>
-                                        <TableHead className="font-bold text-[10px] uppercase tracking-widest py-3">Status</TableHead>
-                                        <TableHead className="text-right font-bold text-[10px] uppercase tracking-widest py-3">Actions</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {loadingFY ? (
-                                        <TableRow><TableCell colSpan={4} className="text-center py-10"><Loader2 className="animate-spin h-5 w-5 mx-auto text-muted-foreground" /></TableCell></TableRow>
-                                    ) : financialYears.length === 0 ? (
-                                        <TableRow><TableCell colSpan={4} className="text-center py-10 text-muted-foreground font-medium italic">No financial years configured.</TableCell></TableRow>
-                                    ) : financialYears.map((fy: any) => (
-                                        <TableRow key={fy.id} className="hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors border-b border-gray-50 dark:border-gray-800">
-                                            <TableCell className="font-black text-xs text-gray-900 dark:text-gray-100">{fy.name}</TableCell>
-                                            <TableCell className="text-[11px] font-mono font-bold text-gray-500">
-                                                {fy.startDate} <span className="mx-1 text-gray-300">→</span> {fy.endDate}
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge className={`rounded-lg px-2 py-0 border-0 font-bold text-[10px] ${fy.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}>
-                                                    {fy.isActive ? 'Current' : 'Closed'}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <Button variant="ghost" size="icon" onClick={() => { setEditingFYId(fy.id); setFyForm(fy); setIsFYDialogOpen(true); }} className="h-8 w-8 rounded-lg hover:bg-white hover:shadow-sm"><Pencil className="h-3.5 w-3.5" /></Button>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-            </Tabs>
+          <form onSubmit={handleSaveFY} className="px-8 pb-8 space-y-6">
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-gray-400 ml-1">Period Name</label>
+              <Input 
+                value={fyForm.name} 
+                onChange={e => setFyForm({ ...fyForm, name: e.target.value })} 
+                placeholder="e.g. FY 2024-2025" 
+                required 
+                className="h-12 rounded-xl border-gray-100 bg-gray-50/50 focus:bg-white focus:ring-1 focus:ring-indigo-500 transition-all font-bold text-gray-900 uppercase" 
+              />
+            </div>
 
-            {/* Company Dialog */}
-            <Dialog open={isCompanyDialogOpen} onOpenChange={setIsCompanyDialogOpen}>
-                <DialogContent className="rounded-[2.5rem] border-0 shadow-2xl p-8 max-w-md">
-                    <form onSubmit={handleSaveCompany}>
-                        <DialogHeader>
-                            <DialogTitle className="text-2xl font-black tracking-tight flex items-center gap-3">
-                                <Building2 className="h-6 w-6 text-indigo-600" />
-                                {editingCompanyId ? 'Update Company' : 'New Company'}
-                            </DialogTitle>
-                            <DialogDescription className="font-medium text-gray-500 py-2">
-                                Configure your primary business workspace and contact details.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                            <div className="space-y-1.5">
-                                <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Business Name</Label>
-                                <Input value={companyForm.name} onChange={e => setCompanyForm({ ...companyForm, name: e.target.value })} placeholder="e.g. Acme Corp" required className="rounded-xl h-11 border-gray-200" />
-                            </div>
-                            <div className="space-y-1.5">
-                                <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Description</Label>
-                                <Textarea value={companyForm.description} onChange={e => setCompanyForm({ ...companyForm, description: e.target.value })} placeholder="General business info..." className="rounded-xl min-h-[80px] border-gray-200" />
-                            </div>
-                        </div>
-                        <DialogFooter className="pt-4">
-                            <Button type="submit" disabled={isSubmitting} className="w-full rounded-xl h-12 font-bold bg-indigo-600 hover:bg-indigo-700">
-                                {isSubmitting ? <Loader2 className="animate-spin" /> : 'Save Workspace'}
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </DialogContent>
-            </Dialog>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-gray-400 ml-1">Starts On</label>
+                <Input type="date" value={fyForm.startDate} onChange={e => setFyForm({ ...fyForm, startDate: e.target.value })} required className="h-12 rounded-xl border-gray-100 bg-gray-50/50 font-bold" />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-gray-400 ml-1">Ends On</label>
+                <Input type="date" value={fyForm.endDate} onChange={e => setFyForm({ ...fyForm, endDate: e.target.value })} required className="h-12 rounded-xl border-gray-100 bg-gray-50/50 font-bold" />
+              </div>
+            </div>
 
-            {/* FY Dialog */}
-            <Dialog open={isFYDialogOpen} onOpenChange={setIsFYDialogOpen}>
-                <DialogContent className="rounded-[2.5rem] border-0 shadow-2xl p-8 max-w-md">
-                    <form onSubmit={handleSaveFY}>
-                        <DialogHeader>
-                            <DialogTitle className="text-2xl font-black tracking-tight flex items-center gap-3">
-                                <Calendar className="h-6 w-6 text-indigo-600" />
-                                {editingFYId ? 'Edit FY' : 'New Financial Year'}
-                            </DialogTitle>
-                            <DialogDescription className="font-medium text-gray-500 py-2">
-                                Define the accounting period for tracking balance history.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                            <div className="space-y-1.5">
-                                <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Period Name</Label>
-                                <Input value={fyForm.name} onChange={e => setFyForm({ ...fyForm, name: e.target.value })} placeholder="e.g. FY 2024-25" required className="rounded-xl h-11 border-gray-200" />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-1.5">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Starts On</Label>
-                                    <Input type="date" value={fyForm.startDate} onChange={e => setFyForm({ ...fyForm, startDate: e.target.value })} required className="rounded-xl h-11 border-gray-200" />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Ends On</Label>
-                                    <Input type="date" value={fyForm.endDate} onChange={e => setFyForm({ ...fyForm, endDate: e.target.value })} required className="rounded-xl h-11 border-gray-200" />
-                                </div>
-                            </div>
-                        </div>
-                        <DialogFooter className="pt-4">
-                            <Button type="submit" disabled={isSubmitting} className="w-full rounded-xl h-12 font-bold bg-indigo-600 hover:bg-indigo-700">
-                                {isSubmitting ? <Loader2 className="animate-spin" /> : 'Save Period'}
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </DialogContent>
-            </Dialog>
-        </motion.div>
+            <Button type="submit" disabled={isSubmitting} className="w-full h-14 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-100 transition-all font-black text-lg uppercase tracking-widest">
+              {isSubmitting ? <Loader2 className="h-6 w-6 animate-spin" /> : 'Activate Period'}
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </motion.div>
     );
 }

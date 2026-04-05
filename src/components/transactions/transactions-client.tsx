@@ -22,6 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 import { useAuth } from "@/context/auth-context";
 import { usePermissions } from "@/hooks/use-permissions";
@@ -309,90 +310,86 @@ export function TransactionsClient() {
   };
 
   return (
-    <motion.div
+    <motion.div 
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="space-y-8 p-1 pb-24 max-w-[1600px] mx-auto"
+      className="container mx-auto py-8 px-6 max-w-7xl space-y-8 pb-24"
     >
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2">
-        <motion.div variants={itemVariants} className="flex flex-col gap-2">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-indigo-600 rounded-3xl shadow-xl shadow-indigo-200 text-white">
-              <Sparkles className="h-6 w-6" />
-            </div>
-            <h1 className="text-4xl font-black text-gray-930 dark:text-gray-50 tracking-tight">Transactions</h1>
-          </div>
-          <p className="text-muted-foreground text-sm font-semibold opacity-70 ml-1">
-            Analyze and manage your detailed financial flow.
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <h1 className="text-3xl font-black tracking-tight text-gray-900 flex items-center gap-3 uppercase">
+             <div className="p-3 bg-indigo-50 rounded-2xl border border-indigo-100/50 text-indigo-600">
+                <FileText className="h-7 w-7" />
+             </div>
+             Ledger Log
+          </h1>
+          <p className="text-gray-500 mt-2 text-sm font-semibold ml-1">
+            Analyze your income and expenses flow for {selectedFY.label}.
           </p>
-        </motion.div>
+        </div>
 
-        <motion.div variants={itemVariants} className="flex flex-wrap items-center gap-4 bg-gray-50/50 dark:bg-gray-900/40 backdrop-blur-sm p-3 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm">
+        <div className="flex flex-wrap items-center gap-3">
           <FYSelector value={selectedFY} onValueChange={setSelectedFY} />
-          <div className="h-8 w-px bg-gray-200 mx-1 hidden sm:block" />
+          
+          <div className="h-10 w-[1px] bg-gray-100 mx-2 hidden sm:block" />
+
           <div className="flex items-center gap-2">
             <Button 
               variant="outline" 
               onClick={() => setIsImportOpen(true)}
-              className="rounded-2xl border-gray-100 hover:bg-indigo-50 hover:text-indigo-600 font-bold h-11"
+              className="rounded-xl border-gray-100 hover:bg-gray-50 font-black h-12 px-5 uppercase tracking-widest text-[10px] gap-2 transition-all"
             >
-              <FileDown className="mr-2 h-4 w-4" /> Import
+              <FileDown className="h-4 w-4 text-indigo-600" /> Import
             </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => exportTransactionsToCSV(filteredTransactions, selectedFY.label)}
-              className="rounded-2xl border-gray-100 hover:bg-indigo-50 hover:text-indigo-600 font-bold h-11"
+            
+            <Button
+              onClick={() => {
+                setEditingId(null);
+                setEditingTransaction(null);
+                form.reset({
+                  description: "",
+                  amount: 0,
+                  type: "expense",
+                  category: "",
+                  paymentMethod: "bank",
+                  ledgerId: dbLedgers[0]?.id || "",
+                  date: new Date().toISOString().split('T')[0]
+                });
+                setIsOpen(true);
+              }}
+              className="bg-indigo-600 hover:bg-indigo-700 rounded-xl px-6 h-12 font-black text-white shadow-lg shadow-indigo-100 uppercase tracking-widest text-[10px] gap-2 transition-all"
             >
-              <FileText className="mr-2 h-4 w-4" /> Export
+              <Plus className="h-4 w-4" /> Add Record
             </Button>
-            {canCreate("CORE", "TRANSACTIONS") && (
-              <div className="flex items-center gap-2">
-                <Button
-                  onClick={() => {
-                    setEditingId(null);
-                    setEditingTransaction(null);
-                    form.reset({
-                      description: "",
-                      amount: 0,
-                      type: "expense",
-                      category: "",
-                      paymentMethod: "bank",
-                      ledgerId: dbLedgers[0]?.id || "",
-                      date: new Date().toISOString().split('T')[0]
-                    });
-                    setIsOpen(true);
-                  }}
-                  className="bg-indigo-600 hover:bg-indigo-700 rounded-2xl px-6 h-11 font-bold transition-all text-white"
-                >
-                  <Plus className="mr-2 h-5 w-5" /> Add Transaction
-                </Button>
 
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="h-11 w-11 p-0 rounded-2xl border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800">
-                      <MoreHorizontal className="h-5 w-5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56 p-2 rounded-2xl border-0 shadow-2xl dark:bg-gray-900 ring-1 ring-gray-100 dark:ring-gray-800">
-                    <div className="px-2 py-2 text-[10px] font-black uppercase tracking-widest text-gray-400">Admin Tools</div>
-                    <DropdownMenuItem onClick={handlePurgeOrphans} className="rounded-xl h-10 px-3 cursor-pointer group">
-                      <Trash2 className="mr-2 h-4 w-4 text-gray-400 group-hover:text-amber-500 transition-colors" />
-                      <span className="font-bold text-xs">Purge Orphans</span>
-                    </DropdownMenuItem>
-                    {canDelete("ADMIN", "SYSTEM_AUDIT") && (
-                      <DropdownMenuItem onClick={handleDeleteAll} className="rounded-xl h-10 px-3 cursor-pointer group text-rose-600 dark:text-rose-400">
-                        <Trash2 className="mr-2 h-4 w-4 text-rose-600 dark:text-rose-400" />
-                        <span className="font-bold text-xs">Clear All Entries</span>
-                      </DropdownMenuItem>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-12 w-12 rounded-xl text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all">
+                  <MoreHorizontal className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 p-1 rounded-xl border-gray-100 shadow-2xl">
+                <div className="px-3 py-2 text-[10px] font-black uppercase tracking-widest text-gray-400">Toolkit</div>
+                <DropdownMenuItem onClick={() => exportTransactionsToCSV(filteredTransactions, selectedFY.label)} className="rounded-lg h-10 px-3 cursor-pointer font-bold text-xs gap-3">
+                  <FileText className="h-4 w-4 text-indigo-500" />
+                  <span>Export CSV</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handlePurgeOrphans} className="rounded-lg h-10 px-3 cursor-pointer font-bold text-xs gap-3">
+                  <Trash2 className="h-4 w-4 text-amber-500" />
+                  <span>Purge Orphans</span>
+                </DropdownMenuItem>
+                {canDelete("ADMIN", "SYSTEM_AUDIT") && (
+                  <DropdownMenuItem onClick={handleDeleteAll} className="rounded-lg h-10 px-3 cursor-pointer font-bold text-xs gap-3 text-rose-600 focus:text-rose-600">
+                    <Trash2 className="h-4 w-4" />
+                    <span>Deep Wipe</span>
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/* Stats Cards Section */}

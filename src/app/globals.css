@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 96%;
+    --background: 0 0% 98.5%;
     --foreground: 222 47% 11%;
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
@@ -16,22 +16,22 @@
     --emerald-500: 142 71% 45%;
     --rose-500: 346 84% 61%;
     
-    --glass-bg: rgba(255, 255, 255, 0.45);
-    --glass-border: rgba(255, 255, 255, 0.5);
-    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.6);
+    --glass-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.04);
     
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
+    --border: 214 32% 95%;
+    --input: 214 32% 95%;
     --ring: 239 84% 67%;
-    --radius: 1.25rem;
+    --radius: 0.75rem;
     
     /* Mesh Gradients */
     --mesh-1: #6366f1;
-    --mesh-2: #a855f7;
-    --mesh-3: #ec4899;
-    --mesh-4: #3b82f6;
+    --mesh-2: #818cf8;
+    --mesh-3: #a5b4fc;
+    --mesh-4: #c7d2fe;
   }
 
   * {
