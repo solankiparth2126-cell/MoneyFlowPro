@@ -1,0 +1,97 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env*.local
+.env
+.env.production
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# dotnet
+bin/
+obj/
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+*.sln.docstates
+.vs/
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+api/build_output.txt
+api/errors.txt
+api/build_log*.txt
+api/build_error.log
+api/build-output.txt
+api/Properties/launchSettings.json
+api/appsettings.Development.json
+
+# convex
+convex/_generated/
+.env.local
+.env.test.local
+.env.development.local
+.env.production.local
+
+# financial statements (SECURITY: DO NOT COMMIT)
+*.xls
+*.xlsx
+*.pdf
+
+# temporary files
+/tmp/
+*.xlsledgers
+
+# personal images
+*.jpeg
+*.jpg
+*.png
+
+# internal tools
+.claude/
+.gemini/
+.agent/
+.agent/
+.brain/
+.planning/
+.session/
+.worktrees/
+temp_*.txt
+*.pem
+*.key
+*.priv
+*.jwks
