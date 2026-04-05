@@ -197,11 +197,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (id) {
             setCompanyIdState(id);
             localStorage.setItem('companyId', id);
+            // Force a slight delay and then trigger a check if needed, 
+            // but usually React state update is enough for AppShell to re-render.
         } else {
             setCompanyIdState(null);
             localStorage.removeItem('companyId');
         }
-    }, []);
+    }, [setCompanyIdState]);
 
     const logout = React.useCallback(async () => {
         // Clear local storage and state IMMEDIATELY and synchronously

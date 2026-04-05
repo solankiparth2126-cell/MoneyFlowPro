@@ -68,9 +68,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     }
 
     // Missing Company: Show Selector
+    // We only show the selector if we're CERTAIN there's no companyId after fully loading
     if (!companyId) {
         return (
-            <div className="h-screen w-full bg-gradient-to-br from-indigo-50 to-white overflow-hidden">
+            <div className="h-screen w-full bg-gradient-to-br from-indigo-50 to-white dark:from-indigo-950 dark:to-gray-950 overflow-hidden flex items-center justify-center">
                 <CompanySelector />
             </div>
         );

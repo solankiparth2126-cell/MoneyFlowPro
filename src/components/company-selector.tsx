@@ -29,11 +29,11 @@ export function CompanySelector() {
     const { toast } = useToast();
 
     useEffect(() => {
-        // If only one company exists and none selected, auto-select it
-        if (!isCompaniesLoading && companies.length === 1 && !companyId) {
+        // If companies exist and none selected, auto-select the first one to avoid showing the "Create" screen
+        if (!isCompaniesLoading && companies.length > 0 && !companyId && !isAddingNew) {
             setCompanyId(companies[0].id!);
         }
-    }, [companies, companyId, setCompanyId, isCompaniesLoading]);
+    }, [companies, companyId, setCompanyId, isCompaniesLoading, isAddingNew]);
 
     const handleCreateCompany = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
@@ -60,7 +60,7 @@ export function CompanySelector() {
       if (companyError) throw companyError;
       const newCompanyId = newCompany.id;
 
-      // 2. Grant the user access to their own company (CRITICAL MISSING STEP)
+      // 2. Grant the user access to their own company
       const { error: accessError } = await supabase
           .from('user_company_access')
           .insert([{
@@ -71,12 +71,10 @@ export function CompanySelector() {
 
       if (accessError) throw accessError;
 
-      // 3. Create Ledgers directly via Supabase to handle the specific companyId
+      // 3. Create Ledgers
             for (const name of bankNames) {
               if (name.trim()) {
-                const { error } = await supabase
-                  .from('ledgers')
-                  .insert([{
+                await supabase.from('ledgers').insert([{
                     company_id: newCompanyId,
                     name: name.trim(),
                     account_type: "bank",
@@ -84,16 +82,13 @@ export function CompanySelector() {
                     initial_balance: 0,
                     currency: "INR",
                     icon: "Wallet",
-                  }]);
-                if (error) throw error;
+                }]);
               }
             }
 
             for (const name of creditNames) {
               if (name.trim()) {
-                const { error } = await supabase
-                  .from('ledgers')
-                  .insert([{
+                await supabase.from('ledgers').insert([{
                     company_id: newCompanyId,
                     name: name.trim(),
                     account_type: "credit",
@@ -101,18 +96,24 @@ export function CompanySelector() {
                     initial_balance: 0,
                     currency: "INR",
                     icon: "CreditCard",
-                  }]);
-                if (error) throw error;
+                }]);
               }
             }
 
             toast({
                 title: "Success",
-                description: `Workspace "${newCompanyName}" and ledgers created successfully.`,
+                description: `Workspace "${newCompanyName}" created. Entering dashboard...`,
             });
 
+            // Set the ID and then force a full refresh to ensure all hooks see the new company immediately
             setCompanyId(newCompanyId);
             setIsAddingNew(false);
+            
+            // Small delay to allow state to propagate then force reload to clean route state
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 500);
+            
         } catch (error: any) {
             console.error("Creation error:", error);
             toast({
