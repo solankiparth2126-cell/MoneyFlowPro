@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card"
 import { Target, Plus, TrendingUp, Calendar, Trash2, Edit2, Wallet, Loader2, Sparkles, ArrowRight } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence, Variants } from "framer-motion"
 import { format } from "date-fns"
 import { GoalModal } from "@/components/goals/goal-modal"
 import { GoalHistoryModal } from "@/components/goals/goal-history-modal"
@@ -21,12 +21,20 @@ export function GoalsClient() {
   const [editingGoal, setEditingGoal] = useState<Goal | null>(null)
   const [historyGoal, setHistoryGoal] = useState<Goal | null>(null)
   
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: { 
       opacity: 1, 
       y: 0,
       transition: { duration: 0.5, ease: "easeOut" }
+    }
+  };
+
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
     }
   };
 
@@ -56,14 +64,6 @@ export function GoalsClient() {
   const totalTarget = goals.reduce((acc, g) => acc + g.targetAmount, 0)
   const totalSaved = goals.reduce((acc, g) => acc + g.currentAmount, 0)
   const overallProgress = totalTarget > 0 ? (totalSaved / totalTarget) * 100 : 0
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
-  };
 
   return (
     <motion.div 
